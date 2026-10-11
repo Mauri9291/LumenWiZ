@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "puw5OvpwubE=",
+  "dgSpecHash": "OqHlTIZegzU=",
   "success": true,
   "projectFilePath": "C:\\Users\\MAuri\\Documents\\antigravity\\nifty-faraday\\tests\\LumenWiZ.Tests\\LumenWiZ.Tests.csproj",
   "expectedPackageFiles": [
@@ -12,6 +12,7 @@
     "C:\\Users\\MAuri\\.nuget\\packages\\naudio\\3.1.0\\naudio.3.1.0.nupkg.sha512",
     "C:\\Users\\MAuri\\.nuget\\packages\\naudio.core\\3.1.0\\naudio.core.3.1.0.nupkg.sha512",
     "C:\\Users\\MAuri\\.nuget\\packages\\naudio.midi\\3.1.0\\naudio.midi.3.1.0.nupkg.sha512",
+    "C:\\Users\\MAuri\\.nuget\\packages\\naudio.wasapi\\3.1.0\\naudio.wasapi.3.1.0.nupkg.sha512",
     "C:\\Users\\MAuri\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
     "C:\\Users\\MAuri\\.nuget\\packages\\system.numerics.tensors\\9.0.0\\system.numerics.tensors.9.0.0.nupkg.sha512",
     "C:\\Users\\MAuri\\.nuget\\packages\\system.reflection.metadata\\1.6.0\\system.reflection.metadata.1.6.0.nupkg.sha512",

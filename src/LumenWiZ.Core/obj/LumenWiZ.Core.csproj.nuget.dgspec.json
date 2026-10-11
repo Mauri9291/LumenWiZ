@@ -47,6 +47,10 @@
             "NAudio": {
               "target": "Package",
               "version": "[3.1.0, )"
+            },
+            "NAudio.Wasapi": {
+              "target": "Package",
+              "version": "[3.1.0, )"
             }
           },
           "imports": [

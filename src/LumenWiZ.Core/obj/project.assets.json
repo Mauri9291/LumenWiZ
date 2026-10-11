@@ -51,6 +51,22 @@
           }
         }
       },
+      "NAudio.Wasapi/3.1.0": {
+        "type": "package",
+        "dependencies": {
+          "NAudio.Core": "3.1.0"
+        },
+        "compile": {
+          "lib/net9.0/NAudio.Wasapi.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/NAudio.Wasapi.dll": {
+            "related": ".xml"
+          }
+        }
+      },
       "System.Numerics.Tensors/9.0.0": {
         "type": "package",
         "compile": {
@@ -127,6 +143,23 @@
         "naudio.midi.nuspec"
       ]
     },
+    "NAudio.Wasapi/3.1.0": {
+      "sha512": "iTG+oBJaiID344yz84PrTiVF98av5SsuOUu7ICskcUd6f5ShHDMskG9sE4XUM05Vdlwy88bMQDDC3e+85Mv8yw==",
+      "type": "package",
+      "path": "naudio.wasapi/3.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "_manifest/spdx_2.2/manifest.spdx.json",
+        "_manifest/spdx_2.2/manifest.spdx.json.sha256",
+        "lib/net9.0/NAudio.Wasapi.dll",
+        "lib/net9.0/NAudio.Wasapi.xml",
+        "naudio-icon.png",
+        "naudio.wasapi.3.1.0.nupkg.sha512",
+        "naudio.wasapi.nuspec"
+      ]
+    },
     "System.Numerics.Tensors/9.0.0": {
       "sha512": "hyJB4UlpAi19Xr9AXzu2NuagKC4lPfHObNMEAA0HmqFz2rX7wKgzeYzO/jM/eBHDhnUGFFEjk5cOoJaxqg5J4A==",
       "type": "package",
@@ -158,7 +191,8 @@
   },
   "projectFileDependencyGroups": {
     "net9.0": [
-      "NAudio >= 3.1.0"
+      "NAudio >= 3.1.0",
+      "NAudio.Wasapi >= 3.1.0"
     ]
   },
   "packageFolders": {
@@ -205,6 +239,10 @@
         "targetAlias": "net9.0",
         "dependencies": {
           "NAudio": {
+            "target": "Package",
+            "version": "[3.1.0, )"
+          },
+          "NAudio.Wasapi": {
             "target": "Package",
             "version": "[3.1.0, )"
           }
