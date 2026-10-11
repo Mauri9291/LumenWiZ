@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "53qE7KLq72E=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\MAuri\\Documents\\antigravity\\nifty-faraday\\src\\LumenWiZ.Core\\LumenWiZ.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\MAuri\\.nuget\\packages\\naudio\\3.1.0\\naudio.3.1.0.nupkg.sha512",
+    "C:\\Users\\MAuri\\.nuget\\packages\\naudio.core\\3.1.0\\naudio.core.3.1.0.nupkg.sha512",
+    "C:\\Users\\MAuri\\.nuget\\packages\\naudio.midi\\3.1.0\\naudio.midi.3.1.0.nupkg.sha512",
+    "C:\\Users\\MAuri\\.nuget\\packages\\system.numerics.tensors\\9.0.0\\system.numerics.tensors.9.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}

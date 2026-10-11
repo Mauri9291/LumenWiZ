@@ -1,0 +1,232 @@
+{
+  "version": 3,
+  "targets": {
+    "net9.0": {
+      "NAudio/3.1.0": {
+        "type": "package",
+        "dependencies": {
+          "NAudio.Core": "3.1.0",
+          "NAudio.Midi": "3.1.0"
+        },
+        "compile": {
+          "lib/net9.0/NAudio.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/NAudio.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "NAudio.Core/3.1.0": {
+        "type": "package",
+        "dependencies": {
+          "System.Numerics.Tensors": "9.0.0"
+        },
+        "compile": {
+          "lib/net9.0/NAudio.Core.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/NAudio.Core.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "NAudio.Midi/3.1.0": {
+        "type": "package",
+        "dependencies": {
+          "NAudio.Core": "3.1.0"
+        },
+        "compile": {
+          "lib/net9.0/NAudio.Midi.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/NAudio.Midi.dll": {
+            "related": ".xml"
+          }
+        }
+      },
+      "System.Numerics.Tensors/9.0.0": {
+        "type": "package",
+        "compile": {
+          "lib/net9.0/System.Numerics.Tensors.dll": {
+            "related": ".xml"
+          }
+        },
+        "runtime": {
+          "lib/net9.0/System.Numerics.Tensors.dll": {
+            "related": ".xml"
+          }
+        },
+        "build": {
+          "buildTransitive/net8.0/_._": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "NAudio/3.1.0": {
+      "sha512": "wD5UttLb5Eu/caAYPy/siDg7xf3KVkdJfMLXr+cJfAvxgh6wDnWOBxXfhYNMUiIaQRr2VPDjgPH2QIzBSP6gqw==",
+      "type": "package",
+      "path": "naudio/3.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "_manifest/spdx_2.2/manifest.spdx.json",
+        "_manifest/spdx_2.2/manifest.spdx.json.sha256",
+        "lib/net9.0-windows10.0.19041/NAudio.dll",
+        "lib/net9.0-windows10.0.19041/NAudio.xml",
+        "lib/net9.0-windows7.0/NAudio.dll",
+        "lib/net9.0-windows7.0/NAudio.xml",
+        "lib/net9.0/NAudio.dll",
+        "lib/net9.0/NAudio.xml",
+        "naudio-icon.png",
+        "naudio.3.1.0.nupkg.sha512",
+        "naudio.nuspec"
+      ]
+    },
+    "NAudio.Core/3.1.0": {
+      "sha512": "8Hrd3Uqb2wEB64eZYF+0vl9xBadeSn6JnFDsHuGrw87ucJ+pB7u5NzVpHl8OlCNvIvH+sD9b2h4JOqXBuZGYwg==",
+      "type": "package",
+      "path": "naudio.core/3.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "_manifest/spdx_2.2/manifest.spdx.json",
+        "_manifest/spdx_2.2/manifest.spdx.json.sha256",
+        "lib/net9.0/NAudio.Core.dll",
+        "lib/net9.0/NAudio.Core.xml",
+        "naudio-icon.png",
+        "naudio.core.3.1.0.nupkg.sha512",
+        "naudio.core.nuspec"
+      ]
+    },
+    "NAudio.Midi/3.1.0": {
+      "sha512": "McIiQyY5o0Q3QlF5oRm+b0A8IE0SorA/9HvNi88bH3MdSnGp7cM/9sze/zqbS/9PFdKYVRZPtoLwqoAF4BgjeA==",
+      "type": "package",
+      "path": "naudio.midi/3.1.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "README.md",
+        "_manifest/spdx_2.2/manifest.spdx.json",
+        "_manifest/spdx_2.2/manifest.spdx.json.sha256",
+        "lib/net9.0-windows10.0.19041/NAudio.Midi.dll",
+        "lib/net9.0-windows10.0.19041/NAudio.Midi.xml",
+        "lib/net9.0/NAudio.Midi.dll",
+        "lib/net9.0/NAudio.Midi.xml",
+        "naudio-icon.png",
+        "naudio.midi.3.1.0.nupkg.sha512",
+        "naudio.midi.nuspec"
+      ]
+    },
+    "System.Numerics.Tensors/9.0.0": {
+      "sha512": "hyJB4UlpAi19Xr9AXzu2NuagKC4lPfHObNMEAA0HmqFz2rX7wKgzeYzO/jM/eBHDhnUGFFEjk5cOoJaxqg5J4A==",
+      "type": "package",
+      "path": "system.numerics.tensors/9.0.0",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "Icon.png",
+        "LICENSE.TXT",
+        "PACKAGE.md",
+        "THIRD-PARTY-NOTICES.TXT",
+        "buildTransitive/net461/System.Numerics.Tensors.targets",
+        "buildTransitive/net462/_._",
+        "buildTransitive/net8.0/_._",
+        "buildTransitive/netcoreapp2.0/System.Numerics.Tensors.targets",
+        "lib/net462/System.Numerics.Tensors.dll",
+        "lib/net462/System.Numerics.Tensors.xml",
+        "lib/net8.0/System.Numerics.Tensors.dll",
+        "lib/net8.0/System.Numerics.Tensors.xml",
+        "lib/net9.0/System.Numerics.Tensors.dll",
+        "lib/net9.0/System.Numerics.Tensors.xml",
+        "lib/netstandard2.0/System.Numerics.Tensors.dll",
+        "lib/netstandard2.0/System.Numerics.Tensors.xml",
+        "system.numerics.tensors.9.0.0.nupkg.sha512",
+        "system.numerics.tensors.nuspec",
+        "useSharedDesignerContext.txt"
+      ]
+    }
+  },
+  "projectFileDependencyGroups": {
+    "net9.0": [
+      "NAudio >= 3.1.0"
+    ]
+  },
+  "packageFolders": {
+    "C:\\Users\\MAuri\\.nuget\\packages\\": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "C:\\Users\\MAuri\\Documents\\antigravity\\nifty-faraday\\src\\LumenWiZ.Core\\LumenWiZ.Core.csproj",
+      "projectName": "LumenWiZ.Core",
+      "projectPath": "C:\\Users\\MAuri\\Documents\\antigravity\\nifty-faraday\\src\\LumenWiZ.Core\\LumenWiZ.Core.csproj",
+      "packagesPath": "C:\\Users\\MAuri\\.nuget\\packages\\",
+      "outputPath": "C:\\Users\\MAuri\\Documents\\antigravity\\nifty-faraday\\src\\LumenWiZ.Core\\obj\\",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "C:\\Users\\MAuri\\AppData\\Roaming\\NuGet\\NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "net9.0"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "projectReferences": {}
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      },
+      "restoreAuditProperties": {
+        "enableAudit": "true",
+        "auditLevel": "low",
+        "auditMode": "direct"
+      },
+      "SdkAnalysisLevel": "9.0.300"
+    },
+    "frameworks": {
+      "net9.0": {
+        "targetAlias": "net9.0",
+        "dependencies": {
+          "NAudio": {
+            "target": "Package",
+            "version": "[3.1.0, )"
+          }
+        },
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "frameworkReferences": {
+          "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          }
+        },
+        "runtimeIdentifierGraphPath": "C:\\Users\\MAuri\\AppData\\Local\\Microsoft\\dotnet\\sdk\\9.0.318/PortableRuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

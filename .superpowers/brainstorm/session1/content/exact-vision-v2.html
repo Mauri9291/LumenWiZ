@@ -1,0 +1,484 @@
+<style>
+  :root {
+    --bg-surface: #18181b;
+    --bg-card: rgba(30, 30, 36, 0.75);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-focus: rgba(255, 255, 255, 0.2);
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --accent-amber: #f59e0b;
+    --accent-glow: rgba(245, 158, 11, 0.25);
+  }
+
+  body {
+    background-color: #0c0c0e !important;
+    color: var(--text-primary) !important;
+    font-family: "Segoe UI Variable", -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
+  }
+
+  .vision-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 0 30px;
+  }
+
+  .view-switcher {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 24px;
+  }
+
+  .view-btn {
+    padding: 8px 18px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .view-btn.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  /* --- WIDGET FLYOUT (POPOVER) --- */
+  .flyout-mockup {
+    width: 330px;
+    background: rgba(24, 24, 28, 0.88);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.6), 0 0 1px 1px rgba(255,255,255,0.06);
+    margin: 0 auto 30px;
+  }
+
+  .flyout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .flyout-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bulb-icon-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent-amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .room-tag {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .room-status {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .icon-action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s;
+  }
+  .icon-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  /* Tactile Slider Container */
+  .slider-pill-box {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .slider-track {
+    position: relative;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .slider-fill {
+    height: 100%;
+    width: 80%;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    border-radius: 6px;
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  /* Scenes Pill Grid */
+  .scenes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .scene-pill {
+    padding: 10px 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .scene-pill:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--border-focus);
+  }
+
+  .scene-pill.active {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #fff;
+  }
+
+  .scene-pill .icon {
+    font-size: 16px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .scene-pill .name {
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  .master-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  /* --- FULL EXPANDED WINDOW --- */
+  .window-mockup {
+    background: rgba(22, 22, 26, 0.95);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+    overflow: hidden;
+  }
+
+  .window-titlebar {
+    height: 40px;
+    background: rgba(15, 15, 18, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .window-content {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    min-height: 460px;
+  }
+
+  .sidebar {
+    background: rgba(18, 18, 22, 0.6);
+    border-right: 1px solid var(--border-subtle);
+    padding: 16px 12px;
+  }
+
+  .sidebar-item {
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+    cursor: pointer;
+  }
+
+  .sidebar-item.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .main-panel {
+    padding: 24px;
+  }
+
+  .device-card-individual {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: border-color 0.15s, background 0.15s;
+    cursor: pointer;
+  }
+
+  .device-card-individual:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+  }
+</style>
+
+<div class="vision-container">
+  <div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 6px;">WiZ Desktop: Control por Habitación e Individual</h2>
+    <p style="color: var(--text-secondary); font-size: 13px;">Popover para el conjunto del espacio · Ventana completa con cada foco desglosado uno a uno.</p>
+    
+    <div class="view-switcher" style="margin-top: 15px;">
+      <button class="view-btn" id="btn-popover" onclick="showView('popover')">1. Popover Bandeja (Brillo de las 5 luces juntas)</button>
+      <button class="view-btn active" id="btn-window" onclick="showView('window')">2. Ventana Completa (Tus 5 focos individuales)</button>
+    </div>
+  </div>
+
+  <!-- VISTA 1: POPOVER FLYOUT -->
+  <div id="view-popover" style="display: none;">
+    <div class="flyout-mockup">
+      <div class="flyout-header">
+        <div class="flyout-title">
+          <div class="bulb-icon-badge">💡</div>
+          <div>
+            <div class="room-tag">Mi Habitación</div>
+            <div class="room-status">5 luces encendidas · 2700K</div>
+          </div>
+        </div>
+        <button class="icon-action-btn" title="Abrir Configuración Completa" onclick="showView('window')">⚙️</button>
+      </div>
+
+      <!-- Control de Brillo para TODO el cuarto -->
+      <div class="slider-pill-box">
+        <div class="slider-labels">
+          <span style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Brillo de la Habitación (5 Luces)</span>
+          <span style="color: var(--accent-amber); font-weight: 600;">80%</span>
+        </div>
+        <div class="slider-track">
+          <div class="slider-fill"></div>
+        </div>
+      </div>
+
+      <!-- Escenas de la Habitación -->
+      <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Escena Activa</div>
+      <div class="scenes-grid">
+        <div class="scene-pill active">
+          <span class="icon">☀️</span>
+          <span class="name">Luz Diaria</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🔥</span>
+          <span class="name">Chimenea</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🌊</span>
+          <span class="name">Océano</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🌅</span>
+          <span class="name">Atardecer</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🕯️</span>
+          <span class="name">Vela</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🎵</span>
+          <span class="name">Audio Sync</span>
+        </div>
+      </div>
+
+      <!-- Master Power Toggle -->
+      <div class="master-toggle">
+        <span style="font-size: 12px; color: var(--text-secondary);">Apagar / Encender Habitación</span>
+        <div style="width: 36px; height: 20px; background: #10b981; border-radius: 10px; position: relative; cursor: pointer;">
+          <div style="width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; right: 2px; top: 2px;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA 2: VENTANA COMPLETA -->
+  <div id="view-window">
+    <div class="window-mockup">
+      <div class="window-titlebar">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span>💡 WiZ Lights Studio</span>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <span style="cursor:pointer;">—</span>
+          <span style="cursor:pointer;">□</span>
+          <span style="cursor:pointer;">✕</span>
+        </div>
+      </div>
+
+      <div class="window-content">
+        <!-- Sidebar con Habitaciones y Secciones -->
+        <div class="sidebar">
+          <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin: 4px 10px 8px; letter-spacing: 0.5px;">Habitaciones</div>
+          <div class="sidebar-item active">🛏️ Mi Habitación (5)</div>
+          <div class="sidebar-item" style="opacity: 0.6;">+ Agregar habitación</div>
+          
+          <div style="height: 1px; background: var(--border-subtle); margin: 16px 0;"></div>
+          <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin: 4px 10px 8px; letter-spacing: 0.5px;">Funciones</div>
+          <div class="sidebar-item">🎵 Sincronización Spotify</div>
+          <div class="sidebar-item">☀️ Luz Diaria (Circadiano)</div>
+          <div class="sidebar-item">🎛️ Stream Deck & Atajos</div>
+        </div>
+
+        <!-- Main Body: Los 5 dispositivos desglosados uno a uno -->
+        <div class="main-panel">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 18px;">
+            <div>
+              <h3 style="font-size: 16px; font-weight: 600; margin: 0;">Dispositivos en "Mi Habitación"</h3>
+              <p style="font-size: 11px; color: var(--text-secondary); margin: 2px 0 0;">Haz clic en cualquier foco para calibrar su color y brillo individual</p>
+            </div>
+            <button style="padding: 6px 12px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px; font-size: 11px; cursor: pointer;">
+              🔍 Detectar nuevas luces
+            </button>
+          </div>
+
+          <!-- Dispositivo 1: Tira LED -->
+          <div class="device-card-individual">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:14px; height:14px; border-radius:50%; background:#a855f7; box-shadow:0 0 10px #a855f7;"></div>
+              <div>
+                <div style="font-size: 13px; font-weight: 500;">Tira LED Escritorio</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Color: Violeta Neón · Audio Sync: Activo</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <input type="range" style="width:80px;" value="100">
+              <span style="font-size: 11px; color: var(--text-secondary); width:32px;">100%</span>
+              <div style="width:18px; height:18px; border-radius:50%; background:#a855f7; border:2px solid #fff; cursor:pointer;" title="Cambiar color"></div>
+            </div>
+          </div>
+
+          <!-- Dispositivo 2: Foco 1 -->
+          <div class="device-card-individual">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:14px; height:14px; border-radius:50%; background:#fbbf24; box-shadow:0 0 10px #fbbf24;"></div>
+              <div>
+                <div style="font-size: 13px; font-weight: 500;">Foco Techo 1</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Blanco Cálido 2700K</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <input type="range" style="width:80px;" value="80">
+              <span style="font-size: 11px; color: var(--text-secondary); width:32px;">80%</span>
+              <div style="width:18px; height:18px; border-radius:50%; background:#fbbf24; border:2px solid #fff; cursor:pointer;" title="Cambiar color/temp"></div>
+            </div>
+          </div>
+
+          <!-- Dispositivo 3: Foco 2 -->
+          <div class="device-card-individual">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:14px; height:14px; border-radius:50%; background:#fbbf24; box-shadow:0 0 10px #fbbf24;"></div>
+              <div>
+                <div style="font-size: 13px; font-weight: 500;">Foco Techo 2</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Blanco Cálido 2700K</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <input type="range" style="width:80px;" value="80">
+              <span style="font-size: 11px; color: var(--text-secondary); width:32px;">80%</span>
+              <div style="width:18px; height:18px; border-radius:50%; background:#fbbf24; border:2px solid #fff; cursor:pointer;" title="Cambiar color/temp"></div>
+            </div>
+          </div>
+
+          <!-- Dispositivo 4: Foco 3 -->
+          <div class="device-card-individual">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:14px; height:14px; border-radius:50%; background:#fbbf24; box-shadow:0 0 10px #fbbf24;"></div>
+              <div>
+                <div style="font-size: 13px; font-weight: 500;">Foco Techo 3</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Blanco Cálido 2700K</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <input type="range" style="width:80px;" value="80">
+              <span style="font-size: 11px; color: var(--text-secondary); width:32px;">80%</span>
+              <div style="width:18px; height:18px; border-radius:50%; background:#fbbf24; border:2px solid #fff; cursor:pointer;" title="Cambiar color/temp"></div>
+            </div>
+          </div>
+
+          <!-- Dispositivo 5: Foco 4 -->
+          <div class="device-card-individual">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:14px; height:14px; border-radius:50%; background:#fbbf24; box-shadow:0 0 10px #fbbf24;"></div>
+              <div>
+                <div style="font-size: 13px; font-weight: 500;">Foco Lámpara Noche</div>
+                <div style="font-size: 11px; color: var(--text-muted);">Blanco Cálido 2200K</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:12px;">
+              <input type="range" style="width:80px;" value="40">
+              <span style="font-size: 11px; color: var(--text-secondary); width:32px;">40%</span>
+              <div style="width:18px; height:18px; border-radius:50%; background:#f97316; border:2px solid #fff; cursor:pointer;" title="Cambiar color/temp"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showView(view) {
+    document.getElementById('view-popover').style.display = view === 'popover' ? 'block' : 'none';
+    document.getElementById('view-window').style.display = view === 'window' ? 'block' : 'none';
+    document.getElementById('btn-popover').classList.toggle('active', view === 'popover');
+    document.getElementById('btn-window').classList.toggle('active', view === 'window');
+  }
+</script>

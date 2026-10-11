@@ -1,0 +1,440 @@
+<style>
+  :root {
+    --bg-surface: #18181b;
+    --bg-card: rgba(30, 30, 36, 0.75);
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-focus: rgba(255, 255, 255, 0.2);
+    --text-primary: #f4f4f5;
+    --text-secondary: #a1a1aa;
+    --text-muted: #71717a;
+    --accent-amber: #f59e0b;
+    --accent-glow: rgba(245, 158, 11, 0.25);
+  }
+
+  body {
+    background-color: #0c0c0e !important;
+    color: var(--text-primary) !important;
+    font-family: "Segoe UI Variable", -apple-system, BlinkMacSystemFont, Roboto, sans-serif !important;
+  }
+
+  .vision-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 10px 0 30px;
+  }
+
+  .view-switcher {
+    display: inline-flex;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    margin-bottom: 24px;
+  }
+
+  .view-btn {
+    padding: 8px 18px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: none;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .view-btn.active {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+
+  /* --- WIDGET FLYOUT (POPOVER) --- */
+  .flyout-mockup {
+    width: 330px;
+    background: rgba(24, 24, 28, 0.88);
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 24px 48px -12px rgba(0,0,0,0.6), 0 0 1px 1px rgba(255,255,255,0.06);
+    margin: 0 auto 30px;
+  }
+
+  .flyout-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+  }
+
+  .flyout-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bulb-icon-badge {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(245, 158, 11, 0.15);
+    color: var(--accent-amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+
+  .room-tag {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .room-status {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .icon-action-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s;
+  }
+  .icon-action-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
+
+  /* Tactile Slider Container */
+  .slider-pill-box {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 18px;
+  }
+
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .slider-track {
+    position: relative;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .slider-fill {
+    height: 100%;
+    width: 78%;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24);
+    border-radius: 6px;
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  /* Scenes Pill Grid */
+  .scenes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+
+  .scene-pill {
+    padding: 10px 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .scene-pill:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--border-focus);
+  }
+
+  .scene-pill.active {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.4);
+    color: #fff;
+  }
+
+  .scene-pill .icon {
+    font-size: 16px;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  .scene-pill .name {
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* Quick Toggle Switch */
+  .master-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-subtle);
+  }
+
+  /* --- FULL EXPANDED WINDOW --- */
+  .window-mockup {
+    background: rgba(22, 22, 26, 0.95);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+    overflow: hidden;
+  }
+
+  .window-titlebar {
+    height: 40px;
+    background: rgba(15, 15, 18, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border-subtle);
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .window-content {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    min-height: 400px;
+  }
+
+  .sidebar {
+    background: rgba(18, 18, 22, 0.6);
+    border-right: 1px solid var(--border-subtle);
+    padding: 16px 12px;
+  }
+
+  .sidebar-item {
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+    cursor: pointer;
+  }
+
+  .sidebar-item.active {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  .main-panel {
+    padding: 24px;
+  }
+
+  .device-row {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+</style>
+
+<div class="vision-container">
+  <div style="text-align: center; margin-bottom: 20px;">
+    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 6px;">Arquitectura de 2 Niveles: WiZ Desktop</h2>
+    <p style="color: var(--text-secondary); font-size: 13px;">Una sola visión coherente: el Popover rápido de barra y la Ventana completa de configuración.</p>
+    
+    <div class="view-switcher" style="margin-top: 15px;">
+      <button class="view-btn active" id="btn-popover" onclick="showView('popover')">1. Popover Bandeja de Tareas (Flyout al lado del reloj)</button>
+      <button class="view-btn" id="btn-window" onclick="showView('window')">2. Ventana Completa (Configuración / Habitaciones / Audio)</button>
+    </div>
+  </div>
+
+  <!-- VISTA 1: POPOVER FLYOUT -->
+  <div id="view-popover">
+    <div class="flyout-mockup">
+      <div class="flyout-header">
+        <div class="flyout-title">
+          <div class="bulb-icon-badge">💡</div>
+          <div>
+            <div class="room-tag">Living & Setup</div>
+            <div class="room-status">5 luces activas · 2700K</div>
+          </div>
+        </div>
+        <button class="icon-action-btn" title="Abrir Configuración Completa" onclick="showView('window')">⚙️</button>
+      </div>
+
+      <!-- Control de Brillo Táctil -->
+      <div class="slider-pill-box">
+        <div class="slider-labels">
+          <span style="color: var(--text-secondary); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Brillo Principal</span>
+          <span style="color: var(--accent-amber); font-weight: 600;">78%</span>
+        </div>
+        <div class="slider-track">
+          <div class="slider-fill"></div>
+        </div>
+      </div>
+
+      <!-- Escenas en Pastillas (Estilo AC Buttons) -->
+      <div style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Escenas Rápidas</div>
+      <div class="scenes-grid">
+        <div class="scene-pill active">
+          <span class="icon">☀️</span>
+          <span class="name">Luz Diaria</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🔥</span>
+          <span class="name">Chimenea</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🌊</span>
+          <span class="name">Océano</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🌅</span>
+          <span class="name">Atardecer</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🕯️</span>
+          <span class="name">Vela</span>
+        </div>
+        <div class="scene-pill">
+          <span class="icon">🎵</span>
+          <span class="name">Audio Sync</span>
+        </div>
+      </div>
+
+      <!-- Master Power Toggle -->
+      <div class="master-toggle">
+        <span style="font-size: 12px; color: var(--text-secondary);">Encendido General</span>
+        <div style="width: 36px; height: 20px; background: #10b981; border-radius: 10px; position: relative; cursor: pointer;">
+          <div style="width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; right: 2px; top: 2px;"></div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align: center; color: var(--text-muted); font-size: 12px;">
+      👆 Esto es lo que aparece de forma instantánea al tocar el icono del foco al lado del reloj. Cero ventanas pesadas, respuesta inmediata.
+    </div>
+  </div>
+
+  <!-- VISTA 2: VENTANA COMPLETA -->
+  <div id="view-window" style="display: none;">
+    <div class="window-mockup">
+      <div class="window-titlebar">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span>💡 WiZ Lights Studio</span>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <span style="cursor:pointer;">—</span>
+          <span style="cursor:pointer;">□</span>
+          <span style="cursor:pointer;">✕</span>
+        </div>
+      </div>
+
+      <div class="window-content">
+        <!-- Sidebar -->
+        <div class="sidebar">
+          <div class="sidebar-item active">🏠 Todas las Luces (5)</div>
+          <div class="sidebar-item">🛋️ Living Room (4)</div>
+          <div class="sidebar-item">🖥️ Escritorio (1)</div>
+          <div style="height: 1px; background: var(--border-subtle); margin: 10px 0;"></div>
+          <div class="sidebar-item">🎵 Sincronización Música</div>
+          <div class="sidebar-item">⏰ Ritmo Circadiano</div>
+          <div class="sidebar-item">🎛️ Stream Deck & API</div>
+        </div>
+
+        <!-- Main Body -->
+        <div class="main-panel">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
+            <div>
+              <h3 style="font-size: 17px; font-weight: 600; margin: 0;">Dispositivos Detectados</h3>
+              <p style="font-size: 12px; color: var(--text-secondary); margin: 2px 0 0;">Control individual por foco o tira LED</p>
+            </div>
+            <button style="padding: 7px 14px; background: rgba(255,255,255,0.06); border: 1px solid var(--border-subtle); color: #fff; border-radius: 8px; font-size: 12px; cursor: pointer;">
+              🔍 Buscar nuevas luces
+            </button>
+          </div>
+
+          <!-- Tira LED -->
+          <div class="device-row">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:12px; height:12px; border-radius:50%; background:#a855f7; box-shadow:0 0 10px #a855f7;"></div>
+              <div>
+                <div style="font-size: 13px; font-weight: 500;">Tira LED Escritorio</div>
+                <div style="font-size: 11px; color: var(--text-muted);">IP: 192.168.0.x · Color Violeta Neón (100%)</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span style="font-size: 11px; color: var(--text-secondary);">Audio Sync: <strong>ON</strong></span>
+              <div style="width:30px; height:18px; background:#10b981; border-radius:9px; position:relative;">
+                <div style="width:14px; height:14px; background:#fff; border-radius:50%; position:absolute; right:2px; top:2px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4 Bombillas -->
+          <div class="device-row">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div style="width:12px; height:12px; border-radius:50%; background:#fbbf24; box-shadow:0 0 10px #fbbf24;"></div>
+              <div>
+                <div style="font-size: 13px; font-weight: 500;">Lámparas de Techo (Grupo x4)</div>
+                <div style="font-size: 11px; color: var(--text-muted);">4 bombillas sincronizadas · Luz Cálida 2700K</div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <input type="range" style="width:90px;" value="75">
+              <span style="font-size: 11px; color: var(--text-secondary);">75%</span>
+            </div>
+          </div>
+
+          <!-- Audio Sync Box -->
+          <div style="margin-top: 20px; padding: 14px; background: rgba(37,99,235,0.08); border: 1px solid rgba(59,130,246,0.25); border-radius: 12px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div style="font-size: 13px; font-weight: 600; color: #93c5fd;">🎵 Módulo de Audio Windows (WASAPI Loopback)</div>
+              <span style="font-size: 11px; color: #4ade80;">Spotify Detectado</span>
+            </div>
+            <p style="font-size: 11px; color: #94a3b8; margin: 6px 0 0;">Captura el sonido directo de tu PC sin usar el micrófono. La tira LED reacciona al bajo (subwoofer) y las bombillas cambian de tonalidad con la melodía.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showView(view) {
+    document.getElementById('view-popover').style.display = view === 'popover' ? 'block' : 'none';
+    document.getElementById('view-window').style.display = view === 'window' ? 'block' : 'none';
+    document.getElementById('btn-popover').classList.toggle('active', view === 'popover');
+    document.getElementById('btn-window').classList.toggle('active', view === 'window');
+  }
+</script>
