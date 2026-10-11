@@ -1,0 +1,242 @@
+<Window x:Class="LumenWiZ.UI.Views.TrayPopoverWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:vm="clr-namespace:LumenWiZ.UI.ViewModels"
+        mc:Ignorable="d"
+        Title="LumenWiZ Popover"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        ShowInTaskbar="False"
+        Topmost="True"
+        ResizeMode="NoResize"
+        Width="340"
+        SizeToContent="Height"
+        Deactivated="Window_Deactivated">
+
+    <Window.Resources>
+        <Style x:Key="ScenePillButton" TargetType="Button">
+            <Setter Property="Background" Value="#0FFFFFFF"/>
+            <Setter Property="Foreground" Value="#E4E4E7"/>
+            <Setter Property="BorderBrush" Value="#1FFFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="12"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#25FFFFFF"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#40FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#30FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="IconActionButton" TargetType="Button">
+            <Setter Property="Background" Value="#10FFFFFF"/>
+            <Setter Property="Foreground" Value="#A1A1AA"/>
+            <Setter Property="BorderBrush" Value="#20FFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#25FFFFFF"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#50FFFFFF"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <!-- Outer shadow wrapper -->
+    <Border Margin="14">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="28" ShadowDepth="8" Direction="270" Color="#000000" Opacity="0.65"/>
+        </Border.Effect>
+
+        <!-- Main Card Surface -->
+        <Border Background="#F018181C"
+                BorderBrush="#2AFFFFFF"
+                BorderThickness="1"
+                CornerRadius="20"
+                Padding="18">
+            <StackPanel>
+                <!-- Flyout Header -->
+                <Grid Margin="0,0,0,16">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Bulb Icon Badge -->
+                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="10"
+                            Background="#26F59E0B" BorderBrush="#4DF59E0B" BorderThickness="1"
+                            Margin="0,0,12,0">
+                        <TextBlock Text="💡" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+
+                    <!-- Room Title & Status -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding ActiveRoom.Name, FallbackValue='Mi Habitación'}"
+                                   FontWeight="SemiBold" FontSize="15" Foreground="#F4F4F5"/>
+                        <TextBlock Text="{Binding RoomStatusText}"
+                                   FontSize="11" Foreground="#71717A" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <!-- Settings Button -->
+                    <Button Grid.Column="2" Style="{StaticResource IconActionButton}"
+                            Command="{Binding OpenSettingsCommand}"
+                            ToolTip="Abrir Configuración Completa">
+                        <TextBlock Text="⚙️" FontSize="14"/>
+                    </Button>
+                </Grid>
+
+                <!-- Tactile Brightness Slider Box -->
+                <Border Background="#14000000" BorderBrush="#1FFFFFFF" BorderThickness="1"
+                        CornerRadius="14" Padding="14,12" Margin="0,0,0,16">
+                    <StackPanel>
+                        <Grid Margin="0,0,0,8">
+                            <TextBlock Text="BRILLO HABITACIÓN" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="#A1A1AA"/>
+                            <TextBlock Text="{Binding Brightness, StringFormat='{}{0}%'}"
+                                       FontSize="12" FontWeight="Bold" Foreground="#F59E0B"
+                                       HorizontalAlignment="Right"/>
+                        </Grid>
+
+                        <Slider Value="{Binding Brightness, Mode=TwoWay}"
+                                Minimum="10" Maximum="100"
+                                SmallChange="5" LargeChange="10"
+                                IsSnapToTickEnabled="False"
+                                Foreground="#F59E0B"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Scenes Section Header -->
+                <TextBlock Text="ESCENAS RÁPIDAS" FontSize="10" FontWeight="SemiBold"
+                           Foreground="#71717A" Margin="2,0,0,8"/>
+
+                <!-- Scenes Grid (3 columns) -->
+                <UniformGrid Columns="3" Rows="2" Margin="0,0,0,16">
+                    <!-- Luz Diaria -->
+                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
+                            Command="{Binding SetSceneCommand}" CommandParameter="Luz Diaria:12">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="☀️" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                            <TextBlock Text="Luz Diaria" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Chimenea -->
+                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
+                            Command="{Binding SetSceneCommand}" CommandParameter="Chimenea:5">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="🔥" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                            <TextBlock Text="Chimenea" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Océano -->
+                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
+                            Command="{Binding SetSceneCommand}" CommandParameter="Océano:1">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="🌊" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                            <TextBlock Text="Océano" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Atardecer -->
+                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
+                            Command="{Binding SetSceneCommand}" CommandParameter="Atardecer:3">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="🌅" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                            <TextBlock Text="Atardecer" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Vela -->
+                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
+                            Command="{Binding SetSceneCommand}" CommandParameter="Vela:4">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="🕯️" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                            <TextBlock Text="Vela" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- Audio Sync -->
+                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
+                            Command="{Binding ToggleAudioSyncCommand}">
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="🎵" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                            <TextBlock Text="Audio Sync" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </UniformGrid>
+
+                <!-- Master Toggle Footer -->
+                <Border BorderBrush="#1FFFFFFF" BorderThickness="0,1,0,0" Padding="2,12,2,0">
+                    <Grid>
+                        <TextBlock Text="Encender / Apagar Habitación" FontSize="12"
+                                   Foreground="#A1A1AA" VerticalAlignment="Center"/>
+                        <ToggleButton IsChecked="{Binding IsMasterOn, Mode=TwoWay}"
+                                      HorizontalAlignment="Right"
+                                      Cursor="Hand"
+                                      Width="46" Height="24">
+                            <ToggleButton.Template>
+                                <ControlTemplate TargetType="ToggleButton">
+                                    <Border x:Name="toggleBg" CornerRadius="12" Background="#33333A"
+                                            BorderBrush="#25FFFFFF" BorderThickness="1">
+                                        <Ellipse x:Name="thumb" Width="18" Height="18" Fill="#FFFFFF"
+                                                 HorizontalAlignment="Left" Margin="2,0,0,0">
+                                            <Ellipse.Effect>
+                                                <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.3"/>
+                                            </Ellipse.Effect>
+                                        </Ellipse>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="True">
+                                            <Setter TargetName="toggleBg" Property="Background" Value="#10B981"/>
+                                            <Setter TargetName="thumb" Property="HorizontalAlignment" Value="Right"/>
+                                            <Setter TargetName="thumb" Property="Margin" Value="0,0,2,0"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </ToggleButton.Template>
+                        </ToggleButton>
+                    </Grid>
+                </Border>
+            </StackPanel>
+        </Border>
+    </Border>
+</Window>
