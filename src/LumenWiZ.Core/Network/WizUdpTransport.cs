@@ -15,6 +15,14 @@ public class WizUdpTransport : IDisposable
     {
         _client = new UdpClient(listenPort);
         _client.EnableBroadcast = true;
+
+        // Fix Winsock WSAECONNRESET (error 10054) on Windows when ICMP Port Unreachable arrives
+        try
+        {
+            const int SIO_UDP_CONNRESET = -1744830452; // (int)0x9800000C
+            _client.Client.IOControl(SIO_UDP_CONNRESET, new byte[] { 0 }, new byte[] { 0 });
+        }
+        catch { }
     }
 
     public async Task<string?> SendAsync(IPAddress ip, string json, int timeoutMs = 1500)
@@ -22,22 +30,44 @@ public class WizUdpTransport : IDisposable
         byte[] bytes = Encoding.UTF8.GetBytes(json);
         var endpoint = new IPEndPoint(ip, DefaultPort);
 
-        await _client.SendAsync(bytes, bytes.Length, endpoint);
-
-        using var cts = new CancellationTokenSource(timeoutMs);
         try
         {
-            var result = await _client.ReceiveAsync(cts.Token);
-            return Encoding.UTF8.GetString(result.Buffer);
+            await _client.SendAsync(bytes, bytes.Length, endpoint);
         }
-        catch (OperationCanceledException)
+        catch
         {
             return null;
         }
-        catch (Exception)
+
+        var endTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+        while (DateTime.UtcNow < endTime)
         {
-            return null;
+            int remaining = Math.Max(50, (int)(endTime - DateTime.UtcNow).TotalMilliseconds);
+            using var cts = new CancellationTokenSource(remaining);
+
+            try
+            {
+                var result = await _client.ReceiveAsync(cts.Token);
+                if (result.RemoteEndPoint.Address.Equals(ip))
+                {
+                    return Encoding.UTF8.GetString(result.Buffer);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (SocketException)
+            {
+                continue;
+            }
+            catch
+            {
+                break;
+            }
         }
+
+        return null;
     }
 
     public async Task<List<(IPAddress Ip, string Json)>> SendBroadcastAsync(string json, int timeoutMs = 2500)
@@ -45,14 +75,14 @@ public class WizUdpTransport : IDisposable
         byte[] bytes = Encoding.UTF8.GetBytes(json);
         var responses = new List<(IPAddress Ip, string Json)>();
 
-        // Send to global broadcast 255.255.255.255
+        // 1. Global broadcast
         try
         {
             await _client.SendAsync(bytes, bytes.Length, new IPEndPoint(IPAddress.Broadcast, DefaultPort));
         }
         catch { }
 
-        // Also send to all local subnet broadcasts
+        // 2. Subnet broadcasts
         foreach (var broadcastAddr in GetSubnetBroadcastAddresses())
         {
             try
@@ -77,6 +107,92 @@ public class WizUdpTransport : IDisposable
             catch (OperationCanceledException)
             {
                 break;
+            }
+            catch (SocketException)
+            {
+                continue;
+            }
+            catch
+            {
+                break;
+            }
+        }
+
+        return responses;
+    }
+
+    public async Task<List<(IPAddress Ip, string Json)>> ScanSubnetAsync(string json, int timeoutMs = 2000)
+    {
+        byte[] bytes = Encoding.UTF8.GetBytes(json);
+        var responses = new List<(IPAddress Ip, string Json)>();
+        var seenIps = new HashSet<IPAddress>();
+
+        // Collect all /24 IPs for each local network interface
+        var targetIps = new List<IPAddress>();
+        try
+        {
+            foreach (var iface in NetworkInterface.GetAllNetworkInterfaces())
+            {
+                if (iface.OperationalStatus != OperationalStatus.Up || iface.NetworkInterfaceType == NetworkInterfaceType.Loopback)
+                    continue;
+
+                foreach (var unicast in iface.GetIPProperties().UnicastAddresses)
+                {
+                    if (unicast.Address.AddressFamily == AddressFamily.InterNetwork && unicast.IPv4Mask != null)
+                    {
+                        byte[] ipBytes = unicast.Address.GetAddressBytes();
+                        byte[] maskBytes = unicast.IPv4Mask.GetAddressBytes();
+
+                        // Match /24 subnet (255.255.255.0)
+                        if (maskBytes[0] == 255 && maskBytes[1] == 255 && maskBytes[2] == 255)
+                        {
+                            for (int i = 1; i <= 254; i++)
+                            {
+                                if (i != ipBytes[3])
+                                {
+                                    targetIps.Add(new IPAddress(new byte[] { ipBytes[0], ipBytes[1], ipBytes[2], (byte)i }));
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch { }
+
+        // Send unicast query to all candidate IPs
+        foreach (var ip in targetIps)
+        {
+            try
+            {
+                await _client.SendAsync(bytes, bytes.Length, new IPEndPoint(ip, DefaultPort));
+            }
+            catch { }
+        }
+
+        // Collect responses until timeout
+        var endTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+        while (DateTime.UtcNow < endTime)
+        {
+            int remaining = Math.Max(50, (int)(endTime - DateTime.UtcNow).TotalMilliseconds);
+            using var cts = new CancellationTokenSource(remaining);
+
+            try
+            {
+                var result = await _client.ReceiveAsync(cts.Token);
+                if (seenIps.Add(result.RemoteEndPoint.Address))
+                {
+                    string text = Encoding.UTF8.GetString(result.Buffer);
+                    responses.Add((result.RemoteEndPoint.Address, text));
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                break;
+            }
+            catch (SocketException)
+            {
+                continue;
             }
             catch
             {

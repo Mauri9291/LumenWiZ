@@ -17,7 +17,16 @@ public class DiscoveryService
     public async Task<List<WizDevice>> DiscoverDevicesAsync(int timeoutMs = 2500)
     {
         string sysConfigMsg = WizProtocol.CreateGetSystemConfigPayload();
-        var responses = await _transport.SendBroadcastAsync(sysConfigMsg, timeoutMs);
+        
+        // Fast dual discovery: parallel subnet unicast sweep + UDP broadcast
+        var subnetTask = _transport.ScanSubnetAsync(sysConfigMsg, timeoutMs);
+        var broadcastTask = _transport.SendBroadcastAsync(sysConfigMsg, timeoutMs);
+
+        await Task.WhenAll(subnetTask, broadcastTask);
+
+        var responses = new List<(IPAddress Ip, string Json)>();
+        responses.AddRange(subnetTask.Result);
+        responses.AddRange(broadcastTask.Result);
 
         var devices = new List<WizDevice>();
         var seenIps = new HashSet<string>();
@@ -28,11 +37,13 @@ public class DiscoveryService
             if (seenIps.Contains(ipStr)) continue;
             seenIps.Add(ipStr);
 
-            var (mac, homeId, roomId) = WizProtocol.ParseSystemConfigResponse(json);
+            var (mac, homeId, roomId, moduleName) = WizProtocol.ParseSystemConfigResponseFull(json);
             if (string.IsNullOrEmpty(mac)) continue;
 
-            // Now query its current pilot state
-            string? pilotJson = await _transport.SendAsync(ip, WizProtocol.CreateGetPilotPayload(), 1000);
+            bool isStrip = IsLightStripModel(moduleName);
+
+            // Query current pilot state for this device
+            string? pilotJson = await _transport.SendAsync(ip, WizProtocol.CreateGetPilotPayload(), 800);
             WizPilotState pilotState = !string.IsNullOrEmpty(pilotJson) 
                 ? WizProtocol.ParsePilotResponse(pilotJson) 
                 : new WizPilotState();
@@ -41,9 +52,10 @@ public class DiscoveryService
             {
                 Mac = mac,
                 IpAddress = ipStr,
-                Name = $"WiZ Light ({mac[^4..]})",
+                Name = isStrip ? "Tira LED Escritorio" : $"Foco {mac[^4..]}",
                 HomeId = homeId,
                 RoomId = roomId,
+                IsLightStrip = isStrip,
                 CurrentState = pilotState,
                 IsOnline = true
             });
@@ -56,12 +68,16 @@ public class DiscoveryService
     {
         customRoomNames ??= new Dictionary<int, string>();
 
-        return devices
-            .GroupBy(d => d.RoomId)
+        var devList = devices.ToList();
+        var groups = devList.GroupBy(d => d.RoomId).ToList();
+
+        return groups
             .Select(g => new WizRoom
             {
                 RoomId = g.Key,
-                Name = customRoomNames.TryGetValue(g.Key, out string? name) ? name : $"Habitación #{g.Key}",
+                Name = customRoomNames.TryGetValue(g.Key, out string? name) 
+                    ? name 
+                    : (groups.Count == 1 ? "Mi Habitación" : $"Habitación #{g.Key}"),
                 Devices = g.ToList(),
                 IsOn = g.Any(d => d.CurrentState.State),
                 MasterBrightness = (int)(g.Average(d => d.CurrentState.Dimming ?? 100))
@@ -73,6 +89,7 @@ public class DiscoveryService
     public static bool IsLightStripModel(string? moduleName)
     {
         if (string.IsNullOrWhiteSpace(moduleName)) return false;
-        return moduleName.Contains("STRIP", StringComparison.OrdinalIgnoreCase);
+        return moduleName.Contains("STRIP", StringComparison.OrdinalIgnoreCase)
+            || moduleName.Contains("ESP20", StringComparison.OrdinalIgnoreCase);
     }
 }

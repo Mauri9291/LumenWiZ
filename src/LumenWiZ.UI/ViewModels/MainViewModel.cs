@@ -132,7 +132,7 @@ public class MainViewModel : INotifyPropertyChanged
         StatusMessage = "Buscando luces WiZ en la red local...";
         try
         {
-            var devices = await _discoveryService.DiscoverDevicesAsync(1500);
+            var devices = await _discoveryService.DiscoverDevicesAsync(2500);
             var groupedRooms = DiscoveryService.GroupDevicesByRoom(devices);
 
             Rooms.Clear();

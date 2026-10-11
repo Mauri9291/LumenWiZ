@@ -118,7 +118,7 @@ public class TrayPopoverViewModel : INotifyPropertyChanged
 
     public async Task RefreshStateAsync()
     {
-        var devices = await _discoveryService.DiscoverDevicesAsync(1500);
+        var devices = await _discoveryService.DiscoverDevicesAsync(2500);
         var rooms = DiscoveryService.GroupDevicesByRoom(devices);
 
         AvailableRooms.Clear();

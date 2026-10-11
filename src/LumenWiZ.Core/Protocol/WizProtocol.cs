@@ -46,12 +46,19 @@ public static class WizProtocol
 
     public static (string mac, int homeId, int roomId) ParseSystemConfigResponse(string json)
     {
+        var (mac, homeId, roomId, _) = ParseSystemConfigResponseFull(json);
+        return (mac, homeId, roomId);
+    }
+
+    public static (string mac, int homeId, int roomId, string moduleName) ParseSystemConfigResponseFull(string json)
+    {
         using var doc = JsonDocument.Parse(json);
         var root = doc.RootElement;
 
         string mac = string.Empty;
         int homeId = 0;
         int roomId = 0;
+        string moduleName = string.Empty;
 
         if (root.TryGetProperty("result", out var result))
         {
@@ -63,8 +70,11 @@ public static class WizProtocol
 
             if (result.TryGetProperty("roomId", out var roomProp) && roomProp.TryGetInt32(out var r))
                 roomId = r;
+
+            if (result.TryGetProperty("moduleName", out var modProp))
+                moduleName = modProp.GetString() ?? string.Empty;
         }
 
-        return (mac, homeId, roomId);
+        return (mac, homeId, roomId, moduleName);
     }
 }
