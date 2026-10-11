@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("LumenWiZ.Core")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c531d1fec37a70d1ba68943a3da6b4bc8c79888b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a78dac58b8e5eb0012c2297ca0a0a8d0a58f1edf")]
 [assembly: System.Reflection.AssemblyProductAttribute("LumenWiZ.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("LumenWiZ.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
