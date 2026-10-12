@@ -4,4 +4,6 @@
 *.suo
 .vs/
 .superpowers/
+docs/superpowers/
 *.log
+*.tmp
