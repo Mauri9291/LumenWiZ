@@ -1,97 +1,107 @@
-# 💡 LumenWiZ — WiZ Lights Studio para Windows
+# 💡 LumenWiZ
 
-[![.NET 9](https://img.shields.io/badge/.NET-9.0-purple.svg)](https://dotnet.microsoft.com/)
-[![Plataforma](https://img.shields.io/badge/Plataforma-Windows%2010%20%2F%2011-blue.svg)](https://microsoft.com)
-[![Licencia](https://img.shields.io/badge/Licencia-MIT-green.svg)](LICENSE)
-[![Stream Deck](https://img.shields.io/badge/Integración-Stream%20Deck%20Ready-orange.svg)](#-integración-con-stream-deck)
-
-> **Aplicación de escritorio 100% nativa de alto rendimiento para controlar bombillas y tiras LED WiZ Connected (Signify) en tu red local Wi-Fi, sin nube, con respuesta auditiva reactiva interna (Spotify/Juegos) y soporte para Stream Deck.**
+Aplicación nativa para Windows (x64) diseñada para el control local, ultrarrápido y sin intermediarios de bombillas y tiras LED WiZ Connected.
 
 ---
 
-## ✨ Características Principales
+## 📌 ¿Qué es la aplicación?
 
-- 🪶 **100% Nativo & Ultraligero:** Construido con .NET 9, C# y WPF/ModernWpf. Sin Electron, sin Chrome embebido, sin WebView2. Consumo de memoria mínimo (< 20 MB en reposo).
-- 🔒 **100% Local & Privado:** Comunicación UDP directa por el puerto estándar `38899` en tu red Wi-Fi doméstica. No requiere cuenta de Signify ni conexión a servidores externos.
-- 🎛️ **Arquitectura de Dos Niveles:**
-  1. **Nivel 1 (Popover en la Bandeja del Sistema):** Un icono de bombilla en la barra de tareas de Windows. Al hacer clic se despliega un panel flotante oscuro con el deslizador táctil del brillo maestro de la habitación, escenas rápidas (*Luz Diaria, Chimenea, Océano, Atardecer, Vela, Audio Sync*), interruptor maestro y botón de configuración rápida.
-  2. **Nivel 2 (Estudio de Gestión Completo):** Ventana completa con barra lateral para ver cada bombilla y tira LED de forma individual con control fino de brillo, paleta rápida de colores, interruptor individual y selector de reactividad al sonido.
-- 🎵 **Sincronización Reactiva de Audio WASAPI (Spotify & Juegos):**
-  - Captura el flujo de audio digital interno de Windows directamente desde el render endpoint (Spotify, YouTube, Discord, videojuegos).
-  - **Cero micrófonos:** no se ve afectado por ruido ambiente ni conversaciones.
-  - Analizador FFT de 3 bandas (Graves 20-150Hz asignados a Tiras LED, Medios a bombillas principales, Agudos a lámparas ambientales).
-  - Bucle de control con limitación estricta a **25 FPS** para proteger los microcontroladores ESP de las luces WiZ contra sobrecargas UDP.
-- 📸 **Captura Instantánea de Escenas Locales:** Guarda el estado exacto de todos tus focos en 1 ms con un solo clic y aplícalo cuando quieras sin rehacer la configuración en la app móvil.
-- 🎛️ **Servidor REST Local para Stream Deck:** API HTTP ligera en `http://localhost:38898/api/` lista para macros, botones de Stream Deck o atajos de teclado de Windows.
+**LumenWiZ** es un software de escritorio para Windows 10 y Windows 11 que permite administrar y controlar dispositivos de iluminación inteligente WiZ directamente desde tu computadora. 
+
+Funciona de manera **100% local**, sin requerir cuentas de usuario, sin servicios en la nube de terceros y sin latencia externa. Se integra con el sistema operativo a través de un panel de control rápido en la bandeja del sistema (System Tray) y una consola completa de gestión por habitaciones.
 
 ---
 
-## 🚀 Inicio Rápido
+## ⚙️ ¿Qué es lo que hace?
 
-### Ejecutables Compilados
-En la carpeta de compilación se encuentran dos variantes:
-1. **Versión Standalone (Zero Install):**
-   - Ruta: `src/LumenWiZ.UI/bin/Release/net9.0-windows/win-x64/publish/LumenWiZ.UI.exe`
-   - No requiere tener .NET instalado en el equipo.
-2. **Versión Portable Ligera (5.3 MB):**
-   - Ruta: `bin/LumenWiZ-Portable/LumenWiZ.UI.exe`
-   - Requiere el runtime de .NET 9 en Windows.
+* **Detección Automática de Dispositivos**: Escanea y empareja en milisegundos todas las bombillas y tiras LED WiZ presentes en la red Wi-Fi local mediante escaneo paralelo por subred.
+* **Control por Habitaciones y Focos Individuales**:
+  * Encendido y apagado maestro o por foco individual.
+  * Ajuste de brillo continuo (1% al 100%).
+  * Temperatura de color blanco (Kelvin) y selector cromático RGB en tiempo real.
+  * Creación y administración de habitaciones personalizadas.
+* **Sincronización Audio Reactiva (WASAPI Loopback)**:
+  * Las luces reaccionan en tiempo real a la música, videos o juegos que reproduce Windows.
+  * Captura de audio digital directa del sistema (sin micrófono, inmune a ruidos de ambiente).
+  * Mapeo de frecuencias de audio por bandas (Graves, Medios, Agudos) asignables a cada foco.
+* **Gestor de Escenas de Iluminación**:
+  * **Escenas de fábrica**: Acceso directo a las escenas dinámicas programadas en el chip de WiZ (Océano, Chimenea, Atardecer, Fiesta, Vela, etc.).
+  * **Escenas guardadas**: Captura instantánea de la configuración de todos los focos de una habitación con un solo clic para restaurarla en cualquier momento.
+  * **Menú Rápido (6 Ranuras)**: Configuración de accesos directos personalizables en la barra de tareas.
+* **Integración con Stream Deck & API REST Local**:
+  * Servidor HTTP local embebido (puerto `38898`).
+  * Endpoints REST para encender, apagar, cambiar brillo o disparar escenas desde Elgato Stream Deck o automatizaciones externas.
+* **Ajustes de Sistema**:
+  * Interfaz bilingüe completa con cambio de idioma en vivo (**Español** e **Inglés**).
+  * Opciones para iniciar automáticamente con Windows e iniciar minimizado en la bandeja del sistema.
 
-### Compilar desde el Código Fuente
-```bash
-# Clonar el repositorio
-git clone https://github.com/tu-usuario/LumenWiZ.git
-cd LumenWiZ
+---
 
-# Restaurar dependencias y ejecutar pruebas
-dotnet test
+## 🔬 ¿Cómo funciona?
 
-# Publicar versión nativa autoejecutable
-dotnet publish src/LumenWiZ.UI/LumenWiZ.UI.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true
+LumenWiZ opera bajo una arquitectura distribuida local de baja latencia:
+
+```
+┌─────────────────┐       UDP Broadcast / Unicast (Port 38899)       ┌────────────────────────┐
+│  LumenWiZ (PC)  │ ───────────────────────────────────────────────> │ Focos / Tiras LED WiZ  │
+│                 │ <─────────────────────────────────────────────── │ (Respuesta en < 5 ms)  │
+└────────┬────────┘                      JSON-RPC                    └────────────────────────┘
+         │
+         ├─── WASAPI Loopback Audio ──> Analizador FFT (3 bandas) ──> Lazo de control (25 FPS)
+         │
+         ├─── Servidor HTTP (Port 38898) <── Stream Deck / Macros locales
+         │
+         └─── Persistencia Local ──> %APPDATA%\LumenWiZ\config.json
 ```
 
+1. **Protocolo WiZ UDP (Puerto 38899)**:
+   * La aplicación envía y recibe datagramas UDP con mensajes JSON-RPC (`setPilot`, `getPilot`, `syncPilot`) directamente a la dirección IP de cada bombilla.
+   * La respuesta es inmediata (inferior a 5 milisegundos) y funciona incluso si no hay conexión a Internet.
+2. **Captura Digital de Audio (WASAPI Loopback)**:
+   * Intercepta el buffer de renderizado del dispositivo de salida de audio predeterminado de Windows.
+   * Procesa la señal con un filtro espectral por transformada de Fourier rápida (FFT), dividiendo la señal en Graves (20–150 Hz), Medios (150–2500 Hz) y Agudos (2.5–16 kHz).
+   * Un limitador de velocidad estabiliza la tasa a 25 cuadros por segundo para garantizar máxima fluidez sin saturar el microcontrolador de las luces.
+3. **Servidor API REST Local (Puerto 38898)**:
+   * Levanta un listener HTTP local que recibe solicitudes `GET` y `POST`.
+   * Permite interactuar con la iluminación mediante llamadas HTTP estándar desde Stream Deck, scripts de PowerShell o herramientas de automatización.
+4. **Almacenamiento Local**:
+   * Todas las preferencias, nombres de focos, orden, asignación de habitaciones y escenas se guardan en `%APPDATA%\LumenWiZ\config.json`.
+
 ---
 
-## 🎛️ Integración con Stream Deck
+## 📸 Capturas de Pantalla
 
-LumenWiZ incluye un servidor HTTP embebido en segundo plano. Puedes configurar tus botones de Stream Deck con la acción **System > Website / Open URL** o plugins como **API Ninja** / **HTTP Request**:
+<!-- Espacio reservado para las 4 capturas de pantalla -->
 
-| Acción | Método HTTP | Endpoint |
+| Control de Habitaciones y Focos | Sincronización Audio Reactiva |
+|:---:|:---:|
+| ![Control de Habitaciones](docs/screenshots/01-control-habitaciones.png) | ![Audio Reactivo](docs/screenshots/02-audio-reactivo.png) |
+
+| Gestor de Escenas | Acceso Rápido (Bandeja del Sistema) |
+|:---:|:---:|
+| ![Gestor de Escenas](docs/screenshots/03-gestor-escenas.png) | ![Bandeja del Sistema](docs/screenshots/04-tray-streamdeck.png) |
+
+---
+
+## 📥 Instalación
+
+### Opción 1: Instalador Asistido (Recomendado)
+Descarga el instalador ejecutable desde la sección de **Releases** o compílalo localmente:
+* **Archivo**: `LumenWiZ-Setup-v1.0.0.exe`
+* Incluye asistente de instalación, accesos directos en el menú Inicio y Escritorio, y configuración automática de inicio con Windows.
+
+### Opción 2: Versión Portátil (Standalone)
+* Descomprime o ejecuta directamente `LumenWiZ.UI.exe` sin requerir instalación. No requiere tener el SDK de .NET instalado previamente.
+
+---
+
+## 🔌 API REST Local para Stream Deck
+
+Ejemplos de comandos disponibles en `http://localhost:38898`:
+
+| Acción | Método | Endpoint |
 |---|---|---|
-| **Estado Global** | `GET` | `http://localhost:38898/api/status` |
-| **Encender / Apagar Habitación** | `POST` | `http://localhost:38898/api/power/toggle?room=1` |
-| **Ajustar Brillo de Habitación** | `POST` | `http://localhost:38898/api/brightness?value=80` |
-| **Activar Escena Personalizada** | `POST` | `http://localhost:38898/api/scenes/activate?name=ModoCine` |
-
----
-
-## 🏛️ Arquitectura del Proyecto
-
-```
-LumenWiZ/
-├── src/
-│   ├── LumenWiZ.Core/            # Lógica central reutilizable e independiente
-│   │   ├── Models/              # DTOs WiZ, WizDevice, WizRoom, WizCustomScene
-│   │   ├── Protocol/            # Serializador JSON-RPC UDP para WiZ (setPilot, getPilot)
-│   │   ├── Network/             # Cliente UDP asíncrono con broadcast automático
-│   │   ├── Services/            # DiscoveryService y SceneSnapshotService
-│   │   ├── Audio/               # WASAPI Loopback Capture & Analizador FFT Goertzel
-│   │   ├── Storage/             # Persistencia JSON local en %APPDATA%\LumenWiZ\
-│   │   └── Server/              # Servidor REST HTTP embebido en puerto 38898
-│   │
-│   └── LumenWiZ.UI/              # Capa de presentación WPF moderna
-│       ├── Common/              # RelayCommand y Converters XAML
-│       ├── ViewModels/          # TrayPopoverViewModel, MainViewModel, DeviceItemViewModel
-│       ├── Controls/            # DeviceCard (tarjeta con slider y selector por foco)
-│       └── Views/               # TrayPopoverWindow (popover flotante de bandeja)
-│
-└── tests/
-    └── LumenWiZ.Tests/          # Suite de pruebas unitarias automatizadas (xUnit)
-```
-
----
-
-## 📄 Licencia
-
-Este proyecto está distribuido bajo la licencia MIT. Consulta el archivo `LICENSE` para más detalles.
-WiZ Connected es una marca registrada de Signify N.V. Este proyecto es una utilidad de software independiente de código abierto y no está afiliado oficialmente con Signify.
+| **Ver estado y habitaciones** | `GET` | `/api/rooms` |
+| **Alternar encendido de habitación** | `POST` | `/api/rooms/{roomId}/toggle?state=true` |
+| **Ajustar brillo de habitación** | `POST` | `/api/rooms/{roomId}/brightness?value=80` |
+| **Activar escena personalizada** | `POST` | `/api/scenes/activate?name={nombreEscena}` |

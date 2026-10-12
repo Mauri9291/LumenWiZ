@@ -1,17 +1,25 @@
+using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Interop;
+using LumenWiZ.UI.Common;
 using LumenWiZ.UI.ViewModels;
 
 namespace LumenWiZ.UI;
 
-public partial class MainWindow : Window
+public partial class MainWindow : Wpf.Ui.Controls.FluentWindow
 {
     private readonly MainViewModel? _viewModel;
 
     public MainWindow()
     {
+        string logDir = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LumenWiZ");
+        string logFile = System.IO.Path.Combine(logDir, "debug.log");
+        System.IO.File.AppendAllText(logFile, "MainWindow: Constructor enter\n");
+
         InitializeComponent();
+        System.IO.File.AppendAllText(logFile, "MainWindow: InitializeComponent done\n");
 
         var app = (App)Application.Current;
         if (app.DiscoveryService != null && 
@@ -28,31 +36,21 @@ public partial class MainWindow : Window
                 app.ConfigStorage);
 
             DataContext = _viewModel;
-            Loaded += async (s, e) => await _viewModel.InitializeAsync();
+            Loaded += async (s, e) =>
+            {
+                System.IO.File.AppendAllText(logFile, "MainWindow: Loaded event fired\n");
+                try
+                {
+                    await _viewModel.InitializeAsync();
+                    System.IO.File.AppendAllText(logFile, "MainWindow: InitializeAsync done successfully\n");
+                }
+                catch (Exception ex)
+                {
+                    System.IO.File.AppendAllText(logFile, $"MainWindow: InitializeAsync ERROR: {ex}\n");
+                }
+            };
         }
-    }
-
-    private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
-    {
-        if (e.ChangedButton == MouseButton.Left)
-        {
-            DragMove();
-        }
-    }
-
-    private void Minimize_Click(object sender, RoutedEventArgs e)
-    {
-        WindowState = WindowState.Minimized;
-    }
-
-    private void Maximize_Click(object sender, RoutedEventArgs e)
-    {
-        WindowState = WindowState == WindowState.Maximized ? WindowState.Normal : WindowState.Maximized;
-    }
-
-    private void Close_Click(object sender, RoutedEventArgs e)
-    {
-        Hide();
+        System.IO.File.AppendAllText(logFile, "MainWindow: Constructor exit\n");
     }
 
     protected override void OnClosing(CancelEventArgs e)

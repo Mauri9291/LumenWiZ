@@ -4,10 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:vm="clr-namespace:LumenWiZ.UI.ViewModels"
+             xmlns:controls="clr-namespace:LumenWiZ.UI.Controls"
              mc:Ignorable="d" 
-             d:DesignWidth="600" d:DesignHeight="60">
+             d:DesignWidth="680" d:DesignHeight="120"
+             FontFamily="Segoe UI Variable Display, Segoe UI, sans-serif">
 
     <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Wave Link Color Dot Chip -->
         <Style x:Key="ColorDotButton" TargetType="Button">
             <Setter Property="Width" Value="18"/>
             <Setter Property="Height" Value="18"/>
@@ -17,7 +22,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="dot" CornerRadius="9" Background="{TemplateBinding Background}"
-                                BorderBrush="#40FFFFFF" BorderThickness="1.5">
+                                BorderBrush="#35FFFFFF" BorderThickness="1.5">
                             <Border.Effect>
                                 <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.3"/>
                             </Border.Effect>
@@ -32,133 +37,400 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Wave Link Mini Action Button -->
+        <Style x:Key="MiniIconButton" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#7E7E88"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="4,2"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#25252E"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Wave Link Pill Selector Button -->
+        <Style x:Key="BandPillButton" TargetType="Button">
+            <Setter Property="Background" Value="#202026"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="BorderBrush" Value="#2D2D38"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="8,4"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Margin" Value="2,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="#2A2A34"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#3F3F4E"/>
+                                <Setter Property="Foreground" Value="#FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
-    <Border Background="#0CFFFFFF"
-            BorderBrush="#1AFFFFFF"
+    <!-- Elgato Wave Link Hardware Channel Strip Card -->
+    <Border Background="#17171C"
+            BorderBrush="#25252E"
             BorderThickness="1"
-            CornerRadius="12"
-            Padding="14,10"
+            CornerRadius="8"
+            Padding="14,12"
             Margin="0,0,0,8">
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <!-- Device identity & state indicator -->
-                <ColumnDefinition Width="*"/>
-                <!-- Color palette quick presets -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Brightness slider -->
-                <ColumnDefinition Width="140"/>
-                <!-- Audio sync button -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Power switch -->
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-
-            <!-- Identity: Color dot + Icon + Name + Subtitle -->
-            <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                <!-- Glowing Color Indicator Dot -->
-                <Border Width="16" Height="16" CornerRadius="8"
-                        Background="{Binding ColorHex, FallbackValue='#F59E0B'}"
-                        BorderBrush="#40FFFFFF" BorderThickness="1"
-                        Margin="0,0,12,0" VerticalAlignment="Center">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="#F59E0B" Opacity="0.8"/>
-                    </Border.Effect>
-                </Border>
-
-                <!-- Name & Subtitle -->
-                <StackPanel VerticalAlignment="Center">
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" Foreground="#F4F4F5"/>
-                        <TextBlock Text="{Binding IsLightStrip, Converter={x:Null}}" Margin="6,0,0,0"
-                                   FontSize="10" Foreground="#A1A1AA" VerticalAlignment="Center"/>
-                    </StackPanel>
-                    <TextBlock Text="{Binding Subtitle}" FontSize="11" Foreground="#71717A" Margin="0,2,0,0"/>
-                </StackPanel>
-            </StackPanel>
-
-            <!-- Quick Color / Temp Presets -->
-            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="12,0">
-                <Button Style="{StaticResource ColorDotButton}" Background="#FBBF24" ToolTip="Blanco Cálido 2700K"
-                        Command="{Binding SetColorPresetCommand}" CommandParameter="warm"/>
-                <Button Style="{StaticResource ColorDotButton}" Background="#FEF08A" ToolTip="Blanco Día 4000K"
-                        Command="{Binding SetColorPresetCommand}" CommandParameter="daylight"/>
-                <Button Style="{StaticResource ColorDotButton}" Background="#E0F2FE" ToolTip="Blanco Frío 6500K"
-                        Command="{Binding SetColorPresetCommand}" CommandParameter="cool"/>
-                <Button Style="{StaticResource ColorDotButton}" Background="#A855F7" ToolTip="Violeta Neón"
-                        Command="{Binding SetColorPresetCommand}" CommandParameter="purple"/>
-                <Button Style="{StaticResource ColorDotButton}" Background="#3B82F6" ToolTip="Azul Profundo"
-                        Command="{Binding SetColorPresetCommand}" CommandParameter="blue"/>
-                <Button Style="{StaticResource ColorDotButton}" Background="#10B981" ToolTip="Verde Esmeralda"
-                        Command="{Binding SetColorPresetCommand}" CommandParameter="green"/>
-                <Button Style="{StaticResource ColorDotButton}" Background="#EF4444" ToolTip="Rojo Pasión"
-                        Command="{Binding SetColorPresetCommand}" CommandParameter="red"/>
-            </StackPanel>
-
-            <!-- Brightness Slider -->
-            <Grid Grid.Column="2" VerticalAlignment="Center" Margin="8,0">
+        <StackPanel>
+            <!-- Primary Channel Strip Row -->
+            <Grid>
                 <Grid.ColumnDefinitions>
+                    <!-- Column 0: Reorder + Light Identity & Rename -->
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="34"/>
+                    <!-- Column 1: Color Presets + Palette -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Column 2: Brightness Slider + Percentage Badge -->
+                    <ColumnDefinition Width="150"/>
+                    <!-- Column 3: Audio Reactive Toggle -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Column 4: Power Toggle Switch -->
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Slider Grid.Column="0" Value="{Binding Brightness, Mode=TwoWay}"
-                        Minimum="10" Maximum="100"
-                        SmallChange="5" LargeChange="10"
-                        VerticalAlignment="Center"
-                        Foreground="#F59E0B"/>
-                <TextBlock Grid.Column="1" Text="{Binding Brightness, StringFormat='{}{0}%'}"
-                           FontSize="11" Foreground="#A1A1AA"
-                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+
+                <!-- Identity: Reorder + Indicator + Name + Subtitle -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                    <!-- Reorder Up/Down Mini Buttons -->
+                    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Margin="0,0,8,0">
+                        <Button Style="{StaticResource MiniIconButton}"
+                                Command="{Binding DataContext.MoveDeviceUpCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}"
+                                ToolTip="Mover foco hacia arriba"
+                                Width="18" Height="14" Padding="0">
+                            <TextBlock Text="▲" FontSize="8" Foreground="#7E7E88" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                        <Button Style="{StaticResource MiniIconButton}"
+                                Command="{Binding DataContext.MoveDeviceDownCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}"
+                                ToolTip="Mover foco hacia abajo"
+                                Width="18" Height="14" Padding="0" Margin="0,1,0,0">
+                            <TextBlock Text="▼" FontSize="8" Foreground="#7E7E88" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Glowing Color Dot Indicator -->
+                    <Border Width="16" Height="16" CornerRadius="8"
+                            Background="{Binding ColorHex, FallbackValue='#F59E0B'}"
+                            BorderBrush="#40FFFFFF" BorderThickness="1.5"
+                            Margin="0,0,10,0" VerticalAlignment="Center">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="10" ShadowDepth="0" Color="#F59E0B" Opacity="0.8"/>
+                        </Border.Effect>
+                    </Border>
+
+                    <!-- Name (Regular Mode) -->
+                    <StackPanel VerticalAlignment="Center">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditingName}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Name}" FontWeight="SemiBold" FontSize="13" Foreground="#FFFFFF" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding DeviceTypeTag}" Margin="6,0,0,0" FontSize="10" Foreground="#7E7E88" VerticalAlignment="Center"/>
+                            <Button Style="{StaticResource MiniIconButton}" Command="{Binding StartEditNameCommand}" ToolTip="{DynamicResource Loc_RenameLight}" Margin="4,0,0,0">
+                                <TextBlock Text="✏️" FontSize="10"/>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Subtitle}" FontSize="11" Foreground="#7E7E88" VerticalAlignment="Center"/>
+                            <TextBlock Text="•" FontSize="10" Foreground="#4E4E58" Margin="6,0" VerticalAlignment="Center"/>
+                            <Border Background="#121216" BorderBrush="#262632" BorderThickness="1" CornerRadius="4" Padding="6,2" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock Text="🏠" FontSize="11" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                    <ComboBox ItemsSource="{Binding AvailableRooms}"
+                                              SelectedItem="{Binding AssignedRoom, Mode=TwoWay}"
+                                              MinHeight="26" FontSize="11" MinWidth="85"
+                                              Padding="4,2"
+                                              Background="Transparent" BorderThickness="0" Foreground="#38BDF8" FontWeight="Medium"
+                                              VerticalAlignment="Center"
+                                              VerticalContentAlignment="Center"
+                                              ToolTip="{DynamicResource Loc_RoomTooltip}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Name (Edit Mode) -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditingName}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <TextBox Text="{Binding EditNameText, UpdateSourceTrigger=PropertyChanged}"
+                                 Background="#121216" Foreground="#FFFFFF" BorderBrush="#0078D4"
+                                 Padding="6,3" FontSize="12" Width="130" VerticalAlignment="Center"/>
+                        <Button Style="{StaticResource MiniIconButton}" Command="{Binding SaveEditNameCommand}" ToolTip="{DynamicResource Loc_Save}" Margin="4,0,0,0">
+                            <TextBlock Text="✓" FontWeight="Bold" Foreground="#4ADE80" FontSize="12"/>
+                        </Button>
+                        <Button Style="{StaticResource MiniIconButton}" Command="{Binding CancelEditNameCommand}" ToolTip="{DynamicResource Loc_Cancel}" Margin="2,0,0,0">
+                            <TextBlock Text="✕" Foreground="#F87171" FontSize="10"/>
+                        </Button>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Color Presets Row + Full Wheel Trigger -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0">
+                    <Button Style="{StaticResource ColorDotButton}" Background="#FBBF24" ToolTip="Blanco Cálido 2700K"
+                            Command="{Binding SetColorPresetCommand}" CommandParameter="warm"/>
+                    <Button Style="{StaticResource ColorDotButton}" Background="#FEF08A" ToolTip="Blanco Día 4000K"
+                            Command="{Binding SetColorPresetCommand}" CommandParameter="daylight"/>
+                    <Button Style="{StaticResource ColorDotButton}" Background="#E0F2FE" ToolTip="Blanco Frío 6500K"
+                            Command="{Binding SetColorPresetCommand}" CommandParameter="cool"/>
+                    <Button Style="{StaticResource ColorDotButton}" Background="#A855F7" ToolTip="Violeta Neón"
+                            Command="{Binding SetColorPresetCommand}" CommandParameter="purple"/>
+                    <Button Style="{StaticResource ColorDotButton}" Background="#3B82F6" ToolTip="Azul Profundo"
+                            Command="{Binding SetColorPresetCommand}" CommandParameter="blue"/>
+                    <Button Style="{StaticResource ColorDotButton}" Background="#10B981" ToolTip="Verde Esmeralda"
+                            Command="{Binding SetColorPresetCommand}" CommandParameter="green"/>
+                    <Button Style="{StaticResource ColorDotButton}" Background="#EF4444" ToolTip="Rojo Pasión"
+                            Command="{Binding SetColorPresetCommand}" CommandParameter="red"/>
+
+                    <Button Style="{StaticResource MiniIconButton}" Command="{Binding ToggleColorPickerCommand}"
+                            ToolTip="Control RGB Avanzado &amp; Audio Band" Margin="4,0,0,0" Padding="5,3">
+                        <TextBlock Text="🎨" FontSize="12"/>
+                    </Button>
+                </StackPanel>
+
+                <!-- Brightness Slider with Percentage Pill Badge -->
+                <Grid Grid.Column="2" VerticalAlignment="Center" Margin="6,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="38"/>
+                    </Grid.ColumnDefinitions>
+                    <Slider Grid.Column="0" Value="{Binding Brightness, Mode=TwoWay}"
+                            Minimum="10" Maximum="100"
+                            SmallChange="5" LargeChange="10"
+                            VerticalAlignment="Center"
+                            Foreground="#0078D4"/>
+                    <Border Grid.Column="1" Background="#121216" BorderBrush="#25252E" BorderThickness="1"
+                            CornerRadius="4" Padding="4,2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Brightness, StringFormat='{}{0}%'}"
+                                   FontSize="10" Foreground="#A0A0AA" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"/>
+                    </Border>
+                </Grid>
+
+                <!-- Audio Reactive Toggle Icon -->
+                <ToggleButton Grid.Column="3" IsChecked="{Binding AudioSyncEnabled, Mode=TwoWay}"
+                              ToolTip="Activar/Desactivar reacción al audio"
+                              Cursor="Hand" Margin="8,0" Width="28" Height="28"
+                              VerticalAlignment="Center">
+                    <ToggleButton.Template>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="btnBorder" CornerRadius="6" Background="#202026"
+                                    BorderBrush="#2D2D38" BorderThickness="1">
+                                <TextBlock Text="🎵" FontSize="12" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="btnBorder" Property="Background" Value="#33A855F7"/>
+                                    <Setter TargetName="btnBorder" Property="BorderBrush" Value="#A855F7"/>
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="btnBorder" Property="BorderBrush" Value="#FFFFFF"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </ToggleButton.Template>
+                </ToggleButton>
+
+                <!-- Power Toggle Switch -->
+                <ToggleButton Grid.Column="4" IsChecked="{Binding IsOn, Mode=TwoWay}"
+                              Cursor="Hand" Width="42" Height="22" VerticalAlignment="Center">
+                    <ToggleButton.Template>
+                        <ControlTemplate TargetType="ToggleButton">
+                            <Border x:Name="toggleBg" CornerRadius="11" Background="#2C2C34"
+                                    BorderBrush="#383842" BorderThickness="1">
+                                <Ellipse x:Name="thumb" Width="16" Height="16" Fill="#FFFFFF"
+                                         HorizontalAlignment="Left" Margin="2,0,0,0">
+                                    <Ellipse.Effect>
+                                        <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.3"/>
+                                    </Ellipse.Effect>
+                                </Ellipse>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsChecked" Value="True">
+                                    <Setter TargetName="toggleBg" Property="Background" Value="#0078D4"/>
+                                    <Setter TargetName="toggleBg" Property="BorderBrush" Value="#0078D4"/>
+                                    <Setter TargetName="thumb" Property="HorizontalAlignment" Value="Right"/>
+                                    <Setter TargetName="thumb" Property="Margin" Value="0,0,2,0"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </ToggleButton.Template>
+                </ToggleButton>
             </Grid>
 
-            <!-- Audio Reactive Toggle Icon -->
-            <ToggleButton Grid.Column="3" IsChecked="{Binding AudioSyncEnabled, Mode=TwoWay}"
-                          ToolTip="Activar/Desactivar reacción al audio para esta luz"
-                          Cursor="Hand" Margin="10,0" Width="30" Height="30"
-                          VerticalAlignment="Center">
-                <ToggleButton.Template>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <Border x:Name="btnBorder" CornerRadius="8" Background="#14FFFFFF"
-                                BorderBrush="#20FFFFFF" BorderThickness="1">
-                            <TextBlock Text="🎵" FontSize="13" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="btnBorder" Property="Background" Value="#33A855F7"/>
-                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#A855F7"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="btnBorder" Property="BorderBrush" Value="#FFFFFF"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </ToggleButton.Template>
-            </ToggleButton>
+            <!-- Expanded Drawer (Circular Color Wheel + Info + Audio Band) -->
+            <Border Margin="0,12,0,0" Padding="14,12" Background="#121216" BorderBrush="#202026" BorderThickness="0,1,0,0"
+                    CornerRadius="0,0,8,8"
+                    Visibility="{Binding IsColorPickerOpen, Converter={StaticResource BoolToVis}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <!-- Column 0: Circular Color Wheel -->
+                        <ColumnDefinition Width="Auto"/>
+                        <!-- Column 1: Color Presets & Hex -->
+                        <ColumnDefinition Width="*"/>
+                        <!-- Column 2: Audio Band Assignment -->
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-            <!-- Power Toggle Switch -->
-            <ToggleButton Grid.Column="4" IsChecked="{Binding IsOn, Mode=TwoWay}"
-                          Cursor="Hand" Width="44" Height="22" VerticalAlignment="Center">
-                <ToggleButton.Template>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <Border x:Name="toggleBg" CornerRadius="11" Background="#33333A"
-                                BorderBrush="#25FFFFFF" BorderThickness="1">
-                            <Ellipse x:Name="thumb" Width="16" Height="16" Fill="#FFFFFF"
-                                     HorizontalAlignment="Left" Margin="2,0,0,0">
-                                <Ellipse.Effect>
-                                    <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.3"/>
-                                </Ellipse.Effect>
-                            </Ellipse>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="toggleBg" Property="Background" Value="#10B981"/>
-                                <Setter TargetName="thumb" Property="HorizontalAlignment" Value="Right"/>
-                                <Setter TargetName="thumb" Property="Margin" Value="0,0,2,0"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </ToggleButton.Template>
-            </ToggleButton>
-        </Grid>
+                    <!-- Col 0: Círculo Cromático Interactivo -->
+                    <StackPanel Grid.Column="0" Margin="0,0,20,0" VerticalAlignment="Center">
+                        <TextBlock Text="CÍRCULO CROMÁTICO" FontSize="10" FontWeight="SemiBold" Foreground="#7E7E88"
+                                   HorizontalAlignment="Center" Margin="0,0,0,6"/>
+                        <controls:ColorWheelPicker ColorHex="{Binding ColorHex, Mode=OneWay}"
+                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- Col 1: Current Color Details & White Presets -->
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="0,0,16,0">
+                        <TextBlock Text="COLOR &amp; TEMPERATURA" FontSize="10" FontWeight="SemiBold" Foreground="#7E7E88" Margin="0,0,0,6"/>
+
+                        <!-- Selected Color Dot & Hex Input -->
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,10">
+                            <Border Width="22" Height="22" CornerRadius="11"
+                                    Background="{Binding ColorHex, FallbackValue='#F59E0B'}"
+                                    BorderBrush="#40FFFFFF" BorderThickness="1.5" Margin="0,0,8,0">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Color="#F59E0B" Opacity="0.6"/>
+                                </Border.Effect>
+                            </Border>
+                            <TextBox Text="{Binding HexInput, UpdateSourceTrigger=PropertyChanged}"
+                                     Width="80" Background="#18181E" Foreground="#FFFFFF" BorderBrush="#2D2D38"
+                                     Padding="6,3" FontSize="11" VerticalAlignment="Center" ToolTip="Código Hex RGB (ej: #FF4500)"/>
+                            <Button Style="{StaticResource BandPillButton}" Command="{Binding ApplyHexCommand}" Margin="6,0,0,0" Padding="8,3">
+                                <TextBlock Text="OK" FontSize="10" FontWeight="Medium"/>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- Quick White Tone Presets -->
+                        <TextBlock Text="Blancos Regulables:" FontSize="10" Foreground="#A0A0AA" Margin="0,0,0,4"/>
+                        <WrapPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource BandPillButton}" Content="☀️ Cálido 2700K"
+                                    Command="{Binding SetColorPresetCommand}" CommandParameter="warm" Margin="0,0,4,4"/>
+                            <Button Style="{StaticResource BandPillButton}" Content="🌤️ Día 4000K"
+                                    Command="{Binding SetColorPresetCommand}" CommandParameter="daylight" Margin="0,0,4,4"/>
+                            <Button Style="{StaticResource BandPillButton}" Content="❄️ Frío 6500K"
+                                    Command="{Binding SetColorPresetCommand}" CommandParameter="cool" Margin="0,0,4,4"/>
+                        </WrapPanel>
+                    </StackPanel>
+
+                    <!-- Col 2: Audio Band Assignment -->
+                    <Border Grid.Column="2" Background="#18181E" BorderBrush="#25252E" BorderThickness="1"
+                            CornerRadius="8" Padding="12,10" VerticalAlignment="Center">
+                        <StackPanel>
+                            <TextBlock Text="BANDA DE AUDIO SYNC" FontSize="10" FontWeight="SemiBold" Foreground="#7E7E88"
+                                       HorizontalAlignment="Center" Margin="0,0,0,8"/>
+                            <UniformGrid Columns="2" Rows="2" Margin="0,0,0,8">
+                                <Button Content="🔊 Graves" Command="{Binding SetAudioBandCommand}" CommandParameter="Bass" Margin="2">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource BandPillButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsBassBand}" Value="True">
+                                                    <Setter Property="Background" Value="#35A855F7"/>
+                                                    <Setter Property="BorderBrush" Value="#A855F7"/>
+                                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+
+                                <Button Content="🎚️ Medios" Command="{Binding SetAudioBandCommand}" CommandParameter="Mids" Margin="2">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource BandPillButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMidsBand}" Value="True">
+                                                    <Setter Property="Background" Value="#35A855F7"/>
+                                                    <Setter Property="BorderBrush" Value="#A855F7"/>
+                                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+
+                                <Button Content="🎼 Agudos" Command="{Binding SetAudioBandCommand}" CommandParameter="Treble" Margin="2">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource BandPillButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsTrebleBand}" Value="True">
+                                                    <Setter Property="Background" Value="#35A855F7"/>
+                                                    <Setter Property="BorderBrush" Value="#A855F7"/>
+                                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+
+                                <Button Content="🌈 Todo" Command="{Binding SetAudioBandCommand}" CommandParameter="Full" Margin="2">
+                                    <Button.Style>
+                                        <Style TargetType="Button" BasedOn="{StaticResource BandPillButton}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsFullBand}" Value="True">
+                                                    <Setter Property="Background" Value="#35A855F7"/>
+                                                    <Setter Property="BorderBrush" Value="#A855F7"/>
+                                                    <Setter Property="Foreground" Value="#FFFFFF"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Button.Style>
+                                </Button>
+                            </UniformGrid>
+
+                            <Border Background="#15A855F7" CornerRadius="4" Padding="6,2" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding AudioBandTag, StringFormat='Activa: {0}'}"
+                                           FontSize="10" Foreground="#D8B4FE" FontWeight="Medium"/>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+        </StackPanel>
     </Border>
 </UserControl>

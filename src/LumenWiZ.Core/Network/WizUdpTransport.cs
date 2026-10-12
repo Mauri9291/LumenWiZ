@@ -9,6 +9,7 @@ public class WizUdpTransport : IDisposable
 {
     public const int DefaultPort = 38899;
     private readonly UdpClient _client;
+    private readonly SemaphoreSlim _socketLock = new(1, 1);
     private bool _disposed;
 
     public WizUdpTransport(int listenPort = 0)
@@ -25,49 +26,67 @@ public class WizUdpTransport : IDisposable
         catch { }
     }
 
+    public void SendFireAndForget(IPAddress ip, string json)
+    {
+        try
+        {
+            byte[] bytes = Encoding.UTF8.GetBytes(json);
+            _client.SendAsync(bytes, bytes.Length, new IPEndPoint(ip, DefaultPort));
+        }
+        catch { }
+    }
+
     public async Task<string?> SendAsync(IPAddress ip, string json, int timeoutMs = 1500)
     {
         byte[] bytes = Encoding.UTF8.GetBytes(json);
         var endpoint = new IPEndPoint(ip, DefaultPort);
 
+        await _socketLock.WaitAsync();
         try
         {
-            await _client.SendAsync(bytes, bytes.Length, endpoint);
-        }
-        catch
-        {
-            return null;
-        }
-
-        var endTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
-        while (DateTime.UtcNow < endTime)
-        {
-            int remaining = Math.Max(50, (int)(endTime - DateTime.UtcNow).TotalMilliseconds);
-            using var cts = new CancellationTokenSource(remaining);
-
             try
             {
-                var result = await _client.ReceiveAsync(cts.Token);
-                if (result.RemoteEndPoint.Address.Equals(ip))
-                {
-                    return Encoding.UTF8.GetString(result.Buffer);
-                }
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch (SocketException)
-            {
-                continue;
+                await _client.SendAsync(bytes, bytes.Length, endpoint);
             }
             catch
             {
-                break;
+                return null;
             }
-        }
 
-        return null;
+            var endTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+            while (DateTime.UtcNow < endTime)
+            {
+                int remaining = Math.Max(50, (int)(endTime - DateTime.UtcNow).TotalMilliseconds);
+                using var cts = new CancellationTokenSource(remaining);
+
+                try
+                {
+                    var result = await _client.ReceiveAsync(cts.Token);
+                    if (result.RemoteEndPoint.Address.Equals(ip))
+                    {
+                        return Encoding.UTF8.GetString(result.Buffer);
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (SocketException)
+                {
+                    continue;
+                }
+                catch
+                {
+                    break;
+                }
+            }
+
+            return null;
+        }
+        finally
+        {
+            _socketLock.Release();
+        }
     }
 
     public async Task<List<(IPAddress Ip, string Json)>> SendBroadcastAsync(string json, int timeoutMs = 2500)
@@ -75,50 +94,58 @@ public class WizUdpTransport : IDisposable
         byte[] bytes = Encoding.UTF8.GetBytes(json);
         var responses = new List<(IPAddress Ip, string Json)>();
 
-        // 1. Global broadcast
+        await _socketLock.WaitAsync();
         try
         {
-            await _client.SendAsync(bytes, bytes.Length, new IPEndPoint(IPAddress.Broadcast, DefaultPort));
-        }
-        catch { }
-
-        // 2. Subnet broadcasts
-        foreach (var broadcastAddr in GetSubnetBroadcastAddresses())
-        {
+            // 1. Global broadcast
             try
             {
-                await _client.SendAsync(bytes, bytes.Length, new IPEndPoint(broadcastAddr, DefaultPort));
+                await _client.SendAsync(bytes, bytes.Length, new IPEndPoint(IPAddress.Broadcast, DefaultPort));
             }
             catch { }
-        }
 
-        var endTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
-        while (DateTime.UtcNow < endTime)
+            // 2. Subnet broadcasts
+            foreach (var broadcastAddr in GetSubnetBroadcastAddresses())
+            {
+                try
+                {
+                    await _client.SendAsync(bytes, bytes.Length, new IPEndPoint(broadcastAddr, DefaultPort));
+                }
+                catch { }
+            }
+
+            var endTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+            while (DateTime.UtcNow < endTime)
+            {
+                int remaining = Math.Max(50, (int)(endTime - DateTime.UtcNow).TotalMilliseconds);
+                using var cts = new CancellationTokenSource(remaining);
+
+                try
+                {
+                    var result = await _client.ReceiveAsync(cts.Token);
+                    string text = Encoding.UTF8.GetString(result.Buffer);
+                    responses.Add((result.RemoteEndPoint.Address, text));
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (SocketException)
+                {
+                    continue;
+                }
+                catch
+                {
+                    break;
+                }
+            }
+
+            return responses;
+        }
+        finally
         {
-            int remaining = Math.Max(50, (int)(endTime - DateTime.UtcNow).TotalMilliseconds);
-            using var cts = new CancellationTokenSource(remaining);
-
-            try
-            {
-                var result = await _client.ReceiveAsync(cts.Token);
-                string text = Encoding.UTF8.GetString(result.Buffer);
-                responses.Add((result.RemoteEndPoint.Address, text));
-            }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch (SocketException)
-            {
-                continue;
-            }
-            catch
-            {
-                break;
-            }
+            _socketLock.Release();
         }
-
-        return responses;
     }
 
     public async Task<List<(IPAddress Ip, string Json)>> ScanSubnetAsync(string json, int timeoutMs = 2000)
@@ -160,47 +187,55 @@ public class WizUdpTransport : IDisposable
         }
         catch { }
 
-        // Send unicast query to all candidate IPs
-        foreach (var ip in targetIps)
+        await _socketLock.WaitAsync();
+        try
         {
-            try
+            // Send unicast query to all candidate IPs
+            foreach (var ip in targetIps)
             {
-                await _client.SendAsync(bytes, bytes.Length, new IPEndPoint(ip, DefaultPort));
-            }
-            catch { }
-        }
-
-        // Collect responses until timeout
-        var endTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
-        while (DateTime.UtcNow < endTime)
-        {
-            int remaining = Math.Max(50, (int)(endTime - DateTime.UtcNow).TotalMilliseconds);
-            using var cts = new CancellationTokenSource(remaining);
-
-            try
-            {
-                var result = await _client.ReceiveAsync(cts.Token);
-                if (seenIps.Add(result.RemoteEndPoint.Address))
+                try
                 {
-                    string text = Encoding.UTF8.GetString(result.Buffer);
-                    responses.Add((result.RemoteEndPoint.Address, text));
+                    await _client.SendAsync(bytes, bytes.Length, new IPEndPoint(ip, DefaultPort));
+                }
+                catch { }
+            }
+
+            // Collect responses until timeout
+            var endTime = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+            while (DateTime.UtcNow < endTime)
+            {
+                int remaining = Math.Max(50, (int)(endTime - DateTime.UtcNow).TotalMilliseconds);
+                using var cts = new CancellationTokenSource(remaining);
+
+                try
+                {
+                    var result = await _client.ReceiveAsync(cts.Token);
+                    if (seenIps.Add(result.RemoteEndPoint.Address))
+                    {
+                        string text = Encoding.UTF8.GetString(result.Buffer);
+                        responses.Add((result.RemoteEndPoint.Address, text));
+                    }
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (SocketException)
+                {
+                    continue;
+                }
+                catch
+                {
+                    break;
                 }
             }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch (SocketException)
-            {
-                continue;
-            }
-            catch
-            {
-                break;
-            }
-        }
 
-        return responses;
+            return responses;
+        }
+        finally
+        {
+            _socketLock.Release();
+        }
     }
 
     private static IEnumerable<IPAddress> GetSubnetBroadcastAddresses()
@@ -238,6 +273,7 @@ public class WizUdpTransport : IDisposable
         if (!_disposed)
         {
             _client.Dispose();
+            _socketLock.Dispose();
             _disposed = true;
         }
     }

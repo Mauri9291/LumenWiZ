@@ -17,24 +17,30 @@ public class DiscoveryTests
             new() { Mac = "MAC4", RoomId = 202, Name = "Kitchen Light" }
         };
 
-        var customNames = new Dictionary<int, string>
+        var assignments = new Dictionary<string, string>
         {
-            [101] = "Mi Habitación",
-            [202] = "Cocina"
+            ["MAC1"] = "Mi Habitación",
+            ["MAC2"] = "Mi Habitación",
+            ["MAC3"] = "Mi Habitación",
+            ["MAC4"] = "Cocina"
         };
+        var customRooms = new List<string> { "Mi Habitación", "Cocina" };
 
-        List<WizRoom> rooms = DiscoveryService.GroupDevicesByRoom(devices, customNames);
+        List<WizRoom> rooms = DiscoveryService.GroupDevicesByRoom(devices, assignments, customRooms);
 
-        Assert.Equal(2, rooms.Count);
+        Assert.Equal(3, rooms.Count);
 
-        var myRoom = rooms.FirstOrDefault(r => r.RoomId == 101);
+        var general = rooms.FirstOrDefault(r => r.RoomId == -1);
+        Assert.NotNull(general);
+        Assert.Equal("General", general.Name);
+        Assert.Equal(4, general.Devices.Count);
+
+        var myRoom = rooms.FirstOrDefault(r => r.Name == "Mi Habitación");
         Assert.NotNull(myRoom);
-        Assert.Equal("Mi Habitación", myRoom.Name);
         Assert.Equal(3, myRoom.Devices.Count);
 
-        var kitchen = rooms.FirstOrDefault(r => r.RoomId == 202);
+        var kitchen = rooms.FirstOrDefault(r => r.Name == "Cocina");
         Assert.NotNull(kitchen);
-        Assert.Equal("Cocina", kitchen.Name);
         Assert.Single(kitchen.Devices);
     }
 

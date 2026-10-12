@@ -14,22 +14,25 @@ public class DiscoveryService
         _transport = transport;
     }
 
-    public async Task<List<WizDevice>> DiscoverDevicesAsync(int timeoutMs = 2500)
+    public async Task<List<WizDevice>> DiscoverDevicesAsync(
+        int timeoutMs = 1800, 
+        Dictionary<string, string>? customDeviceNames = null,
+        Dictionary<string, string>? customAudioBands = null)
     {
         string sysConfigMsg = WizProtocol.CreateGetSystemConfigPayload();
         
-        // Fast dual discovery: parallel subnet unicast sweep + UDP broadcast
-        var subnetTask = _transport.ScanSubnetAsync(sysConfigMsg, timeoutMs);
-        var broadcastTask = _transport.SendBroadcastAsync(sysConfigMsg, timeoutMs);
+        // Fast reliable unicast sweep across /24 subnet (router never drops unicast between Ethernet & Wi-Fi)
+        var responses = await _transport.ScanSubnetAsync(sysConfigMsg, timeoutMs);
 
-        await Task.WhenAll(subnetTask, broadcastTask);
-
-        var responses = new List<(IPAddress Ip, string Json)>();
-        responses.AddRange(subnetTask.Result);
-        responses.AddRange(broadcastTask.Result);
+        // Fallback to broadcast only if subnet sweep found nothing
+        if (responses.Count == 0)
+        {
+            responses = await _transport.SendBroadcastAsync(sysConfigMsg, 1200);
+        }
 
         var devices = new List<WizDevice>();
         var seenIps = new HashSet<string>();
+        var validConfigs = new List<(IPAddress Ip, string IpStr, string Mac, int HomeId, int RoomId, bool IsStrip)>();
 
         foreach (var (ip, json) in responses)
         {
@@ -41,21 +44,37 @@ public class DiscoveryService
             if (string.IsNullOrEmpty(mac)) continue;
 
             bool isStrip = IsLightStripModel(moduleName);
+            validConfigs.Add((ip, ipStr, mac, homeId, roomId, isStrip));
+        }
 
-            // Query current pilot state for this device
-            string? pilotJson = await _transport.SendAsync(ip, WizProtocol.CreateGetPilotPayload(), 800);
+        // Query current pilot state for each discovered device
+        foreach (var c in validConfigs)
+        {
+            string? pilotJson = await _transport.SendAsync(c.Ip, WizProtocol.CreateGetPilotPayload(), 400);
             WizPilotState pilotState = !string.IsNullOrEmpty(pilotJson) 
                 ? WizProtocol.ParsePilotResponse(pilotJson) 
                 : new WizPilotState();
 
+            string suffix = c.Mac.Length >= 4 ? c.Mac[^4..] : c.Mac;
+            string defaultName = c.IsStrip ? "Tira LED Escritorio" : $"Foco {suffix}";
+            string name = (customDeviceNames != null && customDeviceNames.TryGetValue(c.Mac, out var cName))
+                ? cName
+                : defaultName;
+
+            string defaultBand = c.IsStrip ? "Bass" : "Mids";
+            string band = (customAudioBands != null && customAudioBands.TryGetValue(c.Mac, out var cBand))
+                ? cBand
+                : defaultBand;
+
             devices.Add(new WizDevice
             {
-                Mac = mac,
-                IpAddress = ipStr,
-                Name = isStrip ? "Tira LED Escritorio" : $"Foco {mac[^4..]}",
-                HomeId = homeId,
-                RoomId = roomId,
-                IsLightStrip = isStrip,
+                Mac = c.Mac,
+                IpAddress = c.IpStr,
+                Name = name,
+                HomeId = c.HomeId,
+                RoomId = c.RoomId,
+                IsLightStrip = c.IsStrip,
+                AudioBand = band,
                 CurrentState = pilotState,
                 IsOnline = true
             });
@@ -64,26 +83,71 @@ public class DiscoveryService
         return devices;
     }
 
-    public static List<WizRoom> GroupDevicesByRoom(IEnumerable<WizDevice> devices, Dictionary<int, string>? customRoomNames = null)
+    public static List<WizRoom> GroupDevicesByRoom(
+        IEnumerable<WizDevice> devices, 
+        Dictionary<string, string>? deviceRoomAssignments = null,
+        List<string>? customRooms = null,
+        Dictionary<int, string>? customRoomNames = null)
     {
-        customRoomNames ??= new Dictionary<int, string>();
-
         var devList = devices.ToList();
-        var groups = devList.GroupBy(d => d.RoomId).ToList();
+        var result = new List<WizRoom>();
 
-        return groups
-            .Select(g => new WizRoom
+        // 1. "General" space with all bulbs
+        if (devList.Count > 0)
+        {
+            result.Add(new WizRoom
             {
-                RoomId = g.Key,
-                Name = customRoomNames.TryGetValue(g.Key, out string? name) 
-                    ? name 
-                    : (groups.Count == 1 ? "Mi Habitación" : $"Habitación #{g.Key}"),
-                Devices = g.ToList(),
-                IsOn = g.Any(d => d.CurrentState.State),
-                MasterBrightness = (int)(g.Average(d => d.CurrentState.Dimming ?? 100))
-            })
-            .OrderBy(r => r.RoomId)
-            .ToList();
+                RoomId = -1,
+                Name = "General",
+                Devices = devList.ToList(),
+                IsOn = devList.Any(d => d.CurrentState.State),
+                MasterBrightness = (int)devList.Average(d => d.CurrentState.Dimming ?? 80)
+            });
+        }
+
+        deviceRoomAssignments ??= new Dictionary<string, string>();
+        var roomNamesList = customRooms != null && customRooms.Count > 0 
+            ? customRooms.ToList() 
+            : new List<string> { "Mi Habitación" };
+
+        var roomMap = new Dictionary<string, List<WizDevice>>(StringComparer.OrdinalIgnoreCase);
+        foreach (var rName in roomNamesList)
+        {
+            if (!string.IsNullOrWhiteSpace(rName) && !roomMap.ContainsKey(rName))
+            {
+                roomMap[rName] = new List<WizDevice>();
+            }
+        }
+
+        string fallbackRoom = roomNamesList[0];
+        foreach (var d in devList)
+        {
+            string assigned = deviceRoomAssignments.TryGetValue(d.Mac, out var r) && !string.IsNullOrWhiteSpace(r)
+                ? r
+                : fallbackRoom;
+
+            if (!roomMap.ContainsKey(assigned))
+            {
+                roomMap[assigned] = new List<WizDevice>();
+            }
+            roomMap[assigned].Add(d);
+        }
+
+        int rId = 1;
+        foreach (var kvp in roomMap)
+        {
+            var rDevs = kvp.Value;
+            result.Add(new WizRoom
+            {
+                RoomId = rId++,
+                Name = kvp.Key,
+                Devices = rDevs,
+                IsOn = rDevs.Any(d => d.CurrentState.State),
+                MasterBrightness = rDevs.Count > 0 ? (int)rDevs.Average(d => d.CurrentState.Dimming ?? 80) : 80
+            });
+        }
+
+        return result;
     }
 
     public static bool IsLightStripModel(string? moduleName)

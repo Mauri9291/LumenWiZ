@@ -1,0 +1,33 @@
+<UserControl x:Class="LumenWiZ.UI.Controls.ColorWheelPicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             Width="120" Height="120"
+             Cursor="Hand">
+    <Grid Width="120" Height="120" MouseLeftButtonDown="OnMouseDown" MouseMove="OnMouseMove" MouseLeftButtonUp="OnMouseUp">
+        <!-- Background Shadow for circular wheel -->
+        <Ellipse Width="116" Height="116" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Ellipse.Effect>
+                <DropShadowEffect BlurRadius="10" ShadowDepth="2" Direction="270" Color="#000000" Opacity="0.5"/>
+            </Ellipse.Effect>
+        </Ellipse>
+
+        <!-- Color Wheel Image -->
+        <Image x:Name="WheelImage" Width="116" Height="116" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+
+        <!-- Subtle Outer Ring Border -->
+        <Ellipse Width="116" Height="116" Stroke="#30FFFFFF" StrokeThickness="1.5" IsHitTestVisible="False"/>
+
+        <!-- Interactive Canvas for Selector Thumb -->
+        <Canvas Width="120" Height="120" IsHitTestVisible="False">
+            <Ellipse x:Name="SelectorThumb" Width="16" Height="16"
+                     Stroke="#FFFFFF" StrokeThickness="2.5" Fill="Transparent">
+                <Ellipse.Effect>
+                    <DropShadowEffect BlurRadius="6" ShadowDepth="1" Color="#000000" Opacity="0.75"/>
+                </Ellipse.Effect>
+            </Ellipse>
+        </Canvas>
+    </Grid>
+</UserControl>

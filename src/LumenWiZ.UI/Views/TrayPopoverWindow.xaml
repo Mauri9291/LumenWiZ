@@ -3,27 +3,32 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:ui="http://schemas.lepo.co/wpfui/2022/xaml"
         xmlns:vm="clr-namespace:LumenWiZ.UI.ViewModels"
         mc:Ignorable="d"
         Title="LumenWiZ Popover"
+        FontFamily="Segoe UI Variable Display, Segoe UI, sans-serif"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
         ShowInTaskbar="False"
         Topmost="True"
         ResizeMode="NoResize"
-        Width="340"
+        Width="350"
         SizeToContent="Height"
+        MaxHeight="620"
         Deactivated="Window_Deactivated">
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
+        <!-- Fluent 2 / Wave Link Scene Button -->
         <Style x:Key="ScenePillButton" TargetType="Button">
-            <Setter Property="Background" Value="#0FFFFFFF"/>
-            <Setter Property="Foreground" Value="#E4E4E7"/>
-            <Setter Property="BorderBrush" Value="#1FFFFFFF"/>
+            <Setter Property="Background" Value="#222228"/>
+            <Setter Property="Foreground" Value="#F0F0F4"/>
+            <Setter Property="BorderBrush" Value="#2D2D36"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,10"/>
+            <Setter Property="Padding" Value="6,9"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -31,17 +36,18 @@
                         <Border x:Name="border" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="12"
+                                CornerRadius="6"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#25FFFFFF"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#40FFFFFF"/>
+                                <Setter TargetName="border" Property="Background" Value="#2E2E38"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#444452"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#30FFFFFF"/>
+                                <Setter TargetName="border" Property="Background" Value="#1C1C22"/>
+                                <Setter TargetName="border" Property="BorderBrush" Value="#282832"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -49,27 +55,23 @@
             </Setter>
         </Style>
 
+        <!-- Subtle Icon Button -->
         <Style x:Key="IconActionButton" TargetType="Button">
-            <Setter Property="Background" Value="#10FFFFFF"/>
-            <Setter Property="Foreground" Value="#A1A1AA"/>
-            <Setter Property="BorderBrush" Value="#20FFFFFF"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#8A8A94"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Width" Value="32"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="6">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background" Value="#25FFFFFF"/>
-                                <Setter TargetName="border" Property="BorderBrush" Value="#50FFFFFF"/>
+                                <Setter TargetName="border" Property="Background" Value="#282832"/>
                                 <Setter Property="Foreground" Value="#FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -82,56 +84,100 @@
     <!-- Outer shadow wrapper -->
     <Border Margin="14">
         <Border.Effect>
-            <DropShadowEffect BlurRadius="28" ShadowDepth="8" Direction="270" Color="#000000" Opacity="0.65"/>
+            <DropShadowEffect BlurRadius="24" ShadowDepth="6" Direction="270" Color="#000000" Opacity="0.6"/>
         </Border.Effect>
 
-        <!-- Main Card Surface -->
-        <Border Background="#F018181C"
-                BorderBrush="#2AFFFFFF"
+        <!-- Wave Link / Fluent 2 Flyout Card Surface -->
+        <Border Background="#16161B"
+                BorderBrush="#292932"
                 BorderThickness="1"
-                CornerRadius="20"
-                Padding="18">
+                CornerRadius="10"
+                Padding="16">
             <StackPanel>
                 <!-- Flyout Header -->
-                <Grid Margin="0,0,0,16">
+                <Grid Margin="0,0,0,14">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Bulb Icon Badge -->
-                    <Border Grid.Column="0" Width="36" Height="36" CornerRadius="10"
-                            Background="#26F59E0B" BorderBrush="#4DF59E0B" BorderThickness="1"
-                            Margin="0,0,12,0">
-                        <TextBlock Text="💡" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
+                    <!-- Bulb Icon Badge (Clickable: Toggles entire room on/off) -->
+                    <Button Grid.Column="0" Command="{Binding TogglePowerCommand}"
+                            ToolTip="{DynamicResource Loc_RoomPowerTooltip}"
+                            Cursor="Hand" Margin="0,0,10,0" Width="36" Height="36">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="btnBorder" Width="36" Height="36" CornerRadius="6">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="#222228"/>
+                                            <Setter Property="BorderBrush" Value="#2E2E36"/>
+                                            <Setter Property="BorderThickness" Value="1"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsMasterOn}" Value="True">
+                                                    <Setter Property="Background" Value="#2A2412"/>
+                                                    <Setter Property="BorderBrush" Value="#80F59E0B"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+                                    <Path Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                          Data="M12,2A7,7 0 0,0 5,9C5,11.38 6.19,13.47 8,14.74V17A1,1 0 0,0 9,18H15A1,1 0 0,0 16,17V14.74C17.81,13.47 19,11.38 19,9A7,7 0 0,0 12,2M9,21A1,1 0 0,0 10,22H14A1,1 0 0,0 15,21V20H9V21Z">
+                                        <Path.Style>
+                                            <Style TargetType="Path">
+                                                <Setter Property="Fill" Value="#71717A"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsMasterOn}" Value="True">
+                                                        <Setter Property="Fill" Value="#FBBF24"/>
+                                                        <Setter Property="Effect">
+                                                            <Setter.Value>
+                                                                <DropShadowEffect BlurRadius="10" Color="#F59E0B" ShadowDepth="0" Opacity="0.9"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Path.Style>
+                                    </Path>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="btnBorder" Property="Opacity" Value="0.85"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="btnBorder" Property="Opacity" Value="0.65"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
 
                     <!-- Room Title & Status -->
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{Binding ActiveRoom.Name, FallbackValue='Mi Habitación'}"
-                                   FontWeight="SemiBold" FontSize="15" Foreground="#F4F4F5"/>
+                                   FontWeight="SemiBold" FontSize="14" Foreground="#FFFFFF"/>
                         <TextBlock Text="{Binding RoomStatusText}"
-                                   FontSize="11" Foreground="#71717A" Margin="0,2,0,0"/>
+                                   FontSize="11" Foreground="#8A8A94" Margin="0,2,0,0"/>
                     </StackPanel>
 
-                    <!-- Settings Button -->
+                    <!-- Settings Button (Fluent 2 SymbolIcon) -->
                     <Button Grid.Column="2" Style="{StaticResource IconActionButton}"
-                            Command="{Binding OpenSettingsCommand}"
-                            ToolTip="Abrir Configuración Completa">
-                        <TextBlock Text="⚙️" FontSize="14"/>
+                            Click="SettingsButton_Click"
+                            ToolTip="{DynamicResource Loc_OpenFullStudio}">
+                        <ui:SymbolIcon Symbol="Settings20" FontSize="16" Foreground="#A0A0AA"/>
                     </Button>
                 </Grid>
 
-                <!-- Tactile Brightness Slider Box -->
-                <Border Background="#14000000" BorderBrush="#1FFFFFFF" BorderThickness="1"
-                        CornerRadius="14" Padding="14,12" Margin="0,0,0,16">
+                <!-- Brightness Slider Box (Wave Link Fader Box) -->
+                <Border Background="#121216" BorderBrush="#23232A" BorderThickness="1"
+                        CornerRadius="6" Padding="12,10" Margin="0,0,0,14">
                     <StackPanel>
                         <Grid Margin="0,0,0,8">
-                            <TextBlock Text="BRILLO HABITACIÓN" FontSize="10" FontWeight="SemiBold"
-                                       Foreground="#A1A1AA"/>
+                            <TextBlock Text="{DynamicResource Loc_RoomBrightness}" FontSize="10" FontWeight="SemiBold"
+                                       Foreground="#71717A"/>
                             <TextBlock Text="{Binding Brightness, StringFormat='{}{0}%'}"
-                                       FontSize="12" FontWeight="Bold" Foreground="#F59E0B"
+                                       FontSize="12" FontWeight="SemiBold" Foreground="#0078D4"
                                        HorizontalAlignment="Right"/>
                         </Grid>
 
@@ -139,103 +185,167 @@
                                 Minimum="10" Maximum="100"
                                 SmallChange="5" LargeChange="10"
                                 IsSnapToTickEnabled="False"
-                                Foreground="#F59E0B"/>
+                                Foreground="#0078D4"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Scenes Section Header -->
-                <TextBlock Text="ESCENAS RÁPIDAS" FontSize="10" FontWeight="SemiBold"
-                           Foreground="#71717A" Margin="2,0,0,8"/>
+                <!-- SECTION: ESCENAS RÁPIDAS (CON MODO EDICIÓN EN EL MISMO PANEL) -->
+                <Grid Margin="2,0,0,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- Section Title based on edit mode -->
+                    <TextBlock Grid.Column="0" FontSize="10" FontWeight="SemiBold" Foreground="#71717A" VerticalAlignment="Center">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Text" Value="{DynamicResource Loc_QuickScenes}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsEditingSlots}" Value="True">
+                                        <Setter Property="Text" Value="{DynamicResource Loc_Edit6Slots}"/>
+                                        <Setter Property="Foreground" Value="#0078D4"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
 
-                <!-- Scenes Grid (3 columns) -->
-                <UniformGrid Columns="3" Rows="2" Margin="0,0,0,16">
-                    <!-- Luz Diaria -->
-                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
-                            Command="{Binding SetSceneCommand}" CommandParameter="Luz Diaria:12">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="☀️" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
-                            <TextBlock Text="Luz Diaria" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
+                    <!-- Edit / Done Toggle Button -->
+                    <Button Grid.Column="1" Style="{StaticResource IconActionButton}"
+                            PreviewMouseLeftButtonDown="EditScenesButton_PreviewMouseLeftButtonDown"
+                            Click="EditScenesButton_Click"
+                            Width="62" Height="24" Padding="4,2">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <ui:SymbolIcon FontSize="12" Margin="0,0,4,0" VerticalAlignment="Center">
+                                <ui:SymbolIcon.Style>
+                                    <Style TargetType="ui:SymbolIcon">
+                                        <Setter Property="Symbol" Value="Edit16"/>
+                                        <Setter Property="Foreground" Value="#A0A0AA"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditingSlots}" Value="True">
+                                                <Setter Property="Symbol" Value="Checkmark16"/>
+                                                <Setter Property="Foreground" Value="#4ADE80"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ui:SymbolIcon.Style>
+                            </ui:SymbolIcon>
+                            <TextBlock FontSize="11" VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="{DynamicResource Loc_Edit}"/>
+                                        <Setter Property="Foreground" Value="#A0A0AA"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsEditingSlots}" Value="True">
+                                                <Setter Property="Text" Value="{DynamicResource Loc_Done}"/>
+                                                <Setter Property="Foreground" Value="#4ADE80"/>
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
                         </StackPanel>
                     </Button>
+                </Grid>
 
-                    <!-- Chimenea -->
-                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
-                            Command="{Binding SetSceneCommand}" CommandParameter="Chimenea:5">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="🔥" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
-                            <TextBlock Text="Chimenea" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
+                <!-- VIEW A: 6 BOTONES RÁPIDOS NORMALES (Cuando IsEditingSlots == False) -->
+                <ItemsControl ItemsSource="{Binding QuickScenes}" Margin="0,0,0,6">
+                    <ItemsControl.Style>
+                        <Style TargetType="ItemsControl">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditingSlots}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </ItemsControl.Style>
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Columns="3"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource ScenePillButton}" Margin="3"
+                                    Command="{Binding ActivateCommand}"
+                                    ToolTip="{Binding Name}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="{Binding Icon}" FontSize="17" HorizontalAlignment="Center" Margin="0,0,0,3"/>
+                                    <TextBlock Text="{Binding Name}" FontSize="11" FontWeight="Medium"
+                                               HorizontalAlignment="Center" TextTrimming="CharacterEllipsis" MaxWidth="84"/>
+                                </StackPanel>
+                            </Button>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- VIEW B: EDITOR DE RANURAS DIRECTO EN EL FLYOUT (Cuando IsEditingSlots == True) -->
+                <StackPanel Margin="0,2,0,4">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsEditingSlots}" Value="True">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+
+                    <ScrollViewer VerticalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <ItemsControl ItemsSource="{Binding QuickSlots}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Background="#1C1C22" BorderBrush="#2A2A34" BorderThickness="1" CornerRadius="6"
+                                                Padding="8,5" Margin="0,0,0,5">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0" Background="#262632" CornerRadius="4" Padding="6,2" Margin="0,0,8,0" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding SlotNumber, StringFormat='Ranura {0}'}" FontWeight="Bold" FontSize="10" Foreground="#0078D4"/>
+                                                </Border>
+                                                <ComboBox Grid.Column="1" ItemsSource="{Binding AvailableOptions}"
+                                                          SelectedItem="{Binding SelectedOption, Mode=TwoWay}"
+                                                          Background="#141418" Foreground="#FFFFFF"
+                                                          MinHeight="32" Padding="8,3" FontSize="12"
+                                                          VerticalContentAlignment="Center"
+                                                          HorizontalContentAlignment="Stretch">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                                <TextBlock Text="{Binding Icon}" FontSize="13" Margin="0,0,6,0" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="{Binding Name}" FontSize="12" VerticalAlignment="Center" Foreground="#FFFFFF"/>
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Button Style="{StaticResource ScenePillButton}" Command="{Binding ToggleEditSlotsCommand}"
+                                    Margin="0,4,0,4" Padding="0,6">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <ui:SymbolIcon Symbol="Checkmark16" FontSize="12" Margin="0,0,4,0" Foreground="#4ADE80" VerticalAlignment="Center"/>
+                                    <TextBlock Text="{DynamicResource Loc_SaveAndExit}" FontWeight="SemiBold" FontSize="11" Foreground="#4ADE80" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+
+                            <Button Style="{StaticResource IconActionButton}" Command="{Binding OpenFullStudioCommand}"
+                                    Width="Auto" Height="22" HorizontalAlignment="Center" Margin="0,2,0,0">
+                                <TextBlock Text="{DynamicResource Loc_OpenFullStudio}" FontSize="10" Foreground="#8A8A96" TextDecorations="Underline"/>
+                            </Button>
                         </StackPanel>
-                    </Button>
-
-                    <!-- Océano -->
-                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
-                            Command="{Binding SetSceneCommand}" CommandParameter="Océano:1">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="🌊" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
-                            <TextBlock Text="Océano" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- Atardecer -->
-                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
-                            Command="{Binding SetSceneCommand}" CommandParameter="Atardecer:3">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="🌅" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
-                            <TextBlock Text="Atardecer" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- Vela -->
-                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
-                            Command="{Binding SetSceneCommand}" CommandParameter="Vela:4">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="🕯️" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
-                            <TextBlock Text="Vela" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-
-                    <!-- Audio Sync -->
-                    <Button Style="{StaticResource ScenePillButton}" Margin="3"
-                            Command="{Binding ToggleAudioSyncCommand}">
-                        <StackPanel HorizontalAlignment="Center">
-                            <TextBlock Text="🎵" FontSize="16" HorizontalAlignment="Center" Margin="0,0,0,3"/>
-                            <TextBlock Text="Audio Sync" FontSize="11" FontWeight="Medium" HorizontalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
-                </UniformGrid>
-
-                <!-- Master Toggle Footer -->
-                <Border BorderBrush="#1FFFFFFF" BorderThickness="0,1,0,0" Padding="2,12,2,0">
-                    <Grid>
-                        <TextBlock Text="Encender / Apagar Habitación" FontSize="12"
-                                   Foreground="#A1A1AA" VerticalAlignment="Center"/>
-                        <ToggleButton IsChecked="{Binding IsMasterOn, Mode=TwoWay}"
-                                      HorizontalAlignment="Right"
-                                      Cursor="Hand"
-                                      Width="46" Height="24">
-                            <ToggleButton.Template>
-                                <ControlTemplate TargetType="ToggleButton">
-                                    <Border x:Name="toggleBg" CornerRadius="12" Background="#33333A"
-                                            BorderBrush="#25FFFFFF" BorderThickness="1">
-                                        <Ellipse x:Name="thumb" Width="18" Height="18" Fill="#FFFFFF"
-                                                 HorizontalAlignment="Left" Margin="2,0,0,0">
-                                            <Ellipse.Effect>
-                                                <DropShadowEffect BlurRadius="4" ShadowDepth="1" Opacity="0.3"/>
-                                            </Ellipse.Effect>
-                                        </Ellipse>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsChecked" Value="True">
-                                            <Setter TargetName="toggleBg" Property="Background" Value="#10B981"/>
-                                            <Setter TargetName="thumb" Property="HorizontalAlignment" Value="Right"/>
-                                            <Setter TargetName="thumb" Property="Margin" Value="0,0,2,0"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </ToggleButton.Template>
-                        </ToggleButton>
-                    </Grid>
-                </Border>
+                    </ScrollViewer>
+                </StackPanel>
             </StackPanel>
         </Border>
     </Border>

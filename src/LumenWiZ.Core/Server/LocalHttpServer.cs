@@ -24,8 +24,7 @@ public class LocalHttpServer : IDisposable
     {
         _port = port;
         _listener = new HttpListener();
-        _listener.Prefixes.Add($"http://localhost:{_port}/api/");
-        _listener.Prefixes.Add($"http://127.0.0.1:{_port}/api/");
+        _listener.Prefixes.Add($"http://127.0.0.1:{_port}/");
     }
 
     public void Start()
@@ -41,7 +40,8 @@ public class LocalHttpServer : IDisposable
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"[LocalHttpServer] Error starting on port {_port}: {ex.Message}");
+            string logFile = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "LumenWiZ", "debug.log");
+            System.IO.File.AppendAllText(logFile, $"[LocalHttpServer ERROR] {ex}\n");
             _isRunning = false;
         }
     }
