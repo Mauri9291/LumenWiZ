@@ -87,15 +87,15 @@ LumenWiZ opera bajo una arquitectura distribuida local de baja latencia:
 
 ---
 
-## 📥 Instalación
+## 📥 Descargas e Instalación
 
-### Opción 1: Instalador Asistido (Recomendado)
-Descarga el instalador ejecutable desde la sección de **Releases** o compílalo localmente:
-* **Archivo**: `LumenWiZ-Setup-v1.0.0.exe`
-* Incluye asistente de instalación, accesos directos en el menú Inicio y Escritorio, y configuración automática de inicio con Windows.
+Puedes descargar los ejecutables listos para usar desde la sección de **[Releases Oficiales](https://github.com/Mauri9291/LumenWiZ/releases/latest)**:
 
-### Opción 2: Versión Portátil (Standalone)
-* Descomprime o ejecuta directamente `LumenWiZ.UI.exe` sin requerir instalación. No requiere tener el SDK de .NET instalado previamente.
+* 🚀 **[Descargar Instalador (LumenWiZ-Setup-v1.0.0.exe)](https://github.com/Mauri9291/LumenWiZ/releases/download/v1.0.0/LumenWiZ-Setup-v1.0.0.exe)**  
+  *(Recomendado)* Asistente guiado de instalación, accesos directos en Escritorio/Inicio y configuración automática para iniciar con Windows minimizado.
+
+* 📦 **[Descargar Versión Portátil (.zip)](https://github.com/Mauri9291/LumenWiZ/releases/download/v1.0.0/LumenWiZ-v1.0.0-Portable-win-x64.zip)**  
+  *(Sin instalación)* Descomprimir y ejecutar directamente `LumenWiZ.UI.exe`. No requiere instalar .NET en el equipo.
 
 ---
 
