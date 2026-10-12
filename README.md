@@ -73,13 +73,17 @@ LumenWiZ opera bajo una arquitectura distribuida local de baja latencia:
 
 <!-- Espacio reservado para las 4 capturas de pantalla -->
 
-| Control de Habitaciones y Focos | Sincronización Audio Reactiva |
+| Control de Habitaciones y Selector Cromático | Sincronización Audio Reactiva (WASAPI) |
 |:---:|:---:|
 | ![Control de Habitaciones](docs/screenshots/01-control-habitaciones.png) | ![Audio Reactivo](docs/screenshots/02-audio-reactivo.png) |
 
-| Gestor de Escenas | Acceso Rápido (Bandeja del Sistema) |
+| Escenas Predefinidas de Fábrica | Captura de Escenas Personalizadas |
 |:---:|:---:|
-| ![Gestor de Escenas](docs/screenshots/03-gestor-escenas.png) | ![Bandeja del Sistema](docs/screenshots/04-tray-streamdeck.png) |
+| ![Escenas Predefinidas](docs/screenshots/03-escenas-predefinidas.png) | ![Escenas Guardadas](docs/screenshots/04-escenas-guardadas.png) |
+
+| Ajustes Generales & API REST Local / Stream Deck |
+|:---:|
+| ![Ajustes y API](docs/screenshots/05-ajustes-y-api.png) |
 
 ---
 
